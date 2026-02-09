@@ -4,11 +4,11 @@
 # library(AzureStor)
 
 # Read common functions
-source("Code/functions.R")
+source("../common/Code/functions.R")
 # Read geospatial data and color pallets 
-source("Code/global.R")
+source("../common/Code/global.R")
 # Read modules
-source("Code/modules.R")
+source("../common/Code/modules.R")
 
 
 dim_dir <- "Demographic"
