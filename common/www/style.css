@@ -1,0 +1,25 @@
+/* Hide all error messages with CSS */
+.shiny-output-error {
+  visibility: hidden;
+}
+
+/* Change max-width of tooltip box from default 200px to 500px */
+.tooltip-inner {
+  max-width: 500px !important; 
+  text-align: left; /* Optional: Left align looks better for wide text */
+}
+
+
+/* Target the default class for all plotOutput elements */
+/* - Line 1: Example: blue solid border */
+/* - Line 2: Optional: rounded corners */
+/* - Line 3: Optional: subtle shadow */
+/* - Line 4: Optional: space inside the border */
+/*
+.shiny-plot-output {
+  border: 2px solid #007bff;     
+  border-radius: 5px;            
+  box-shadow: 3px 3px 5px #aaa;  
+  padding: 10px;                 
+  }
+*/
