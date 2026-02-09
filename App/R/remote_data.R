@@ -1,5 +1,5 @@
-source("../common/code/loader.R")
-# source("https://raw.githubusercontent.com/I2D2-Data-Team/IDD_Dashboard_App_Dev/refs/heads/main/common/code/loader.R")
+# source("../common/code/loader.R")
+source("https://raw.githubusercontent.com/I2D2-Data-Team/IDD_Dashboard_App_Dev/refs/heads/main/common/code/loader.R")
 
 # Set dimension name for pulling data for correct indicators OR from corresponding directories
 dim_dir <- "Demographic"
