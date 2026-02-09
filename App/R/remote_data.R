@@ -1,20 +1,15 @@
-# library(tidyverse)
-# library(ggplot2)
-# library(ggrepel)
-# library(AzureStor)
+source("../common/code/loader.R")
+# source("https://raw.githubusercontent.com/I2D2-Data-Team/IDD_Dashboard_App_Dev/refs/heads/main/common/code/loader.R")
 
-# Read common functions
-source("../common/Code/functions.R")
-# Read geospatial data and color pallets 
-source("../common/Code/global.R")
-# Read modules
-source("../common/Code/modules.R")
-
-
+# Set dimension name for pulling data for correct indicators OR from corresponding directories
 dim_dir <- "Demographic"
 
 
 # READ METADATA -----------------------------------------------------------
+
+# Read sf data for mapping State of Iowa
+ia_state_map <- 
+  read_rds("../common/Data/map_IA-state.rds")
 
 # Read indicator type
 metadata.fig.types <-
