@@ -8,11 +8,11 @@ load_base_map_server <- function(id, reactive_trigger) {
       req(reactive_trigger())
       # read correct sf data file based on selected geography
       switch(reactive_trigger(),
-             "IA-county"   = read_rds("../common/Data/map_IA-county.rds"),
-             "ECI-area"    = read_rds("../common/Data/map_ECI-areas.rds"),
-             "HHS-region"  = read_rds("../common/Data/map_HHS-regions.rds"),
-             "HS-grantee"  = read_rds("../common/Data/map_HS-grantess.rds"),
-             "MIECHV-area" = read_rds("../common/Data/map_MIECHV-areas.rds")
+             "IA-county"   = read_rds("../common/data/map_IA-county.rds"),
+             "ECI-area"    = read_rds("../common/data/map_ECI-areas.rds"),
+             "HHS-region"  = read_rds("../common/data/map_HHS-regions.rds"),
+             "HS-grantee"  = read_rds("../common/data/map_HS-grantess.rds"),
+             "MIECHV-area" = read_rds("../common/data/map_MIECHV-areas.rds")
       )
     })
     # return data as reactive

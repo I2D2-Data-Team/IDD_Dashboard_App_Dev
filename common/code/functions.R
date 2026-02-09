@@ -15,6 +15,9 @@ library(magick)
 library(AzureStor)
 
 
+# Read sf data for mapping State of Iowa
+ia_state_map <- read_rds("../common/data/map_IA-state.rds")
+
 # Function to Read Indicator Data Files ----------------------------------------
 if (is.na(Sys.getenv("SHINY_SERVER_VERSION", unset = NA))) {
   message("Reading data from local CyBox...")

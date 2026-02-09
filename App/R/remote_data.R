@@ -7,18 +7,14 @@ dim_dir <- "Demographic"
 
 # READ METADATA -----------------------------------------------------------
 
-# Read sf data for mapping State of Iowa
-ia_state_map <- 
-  read_rds("../common/Data/map_IA-state.rds")
-
 # Read indicator type
 metadata.fig.types <-
-  readxl::read_xlsx("../common/Data/figure_titles.xlsx", sheet = "type", .name_repair = janitor::make_clean_names) %>%
+  readxl::read_xlsx("../common/data/figure_titles.xlsx", sheet = "type", .name_repair = janitor::make_clean_names) %>%
   filter(dimension == "Demographic")
 
 # Read figure titles and tooltips
 metadata.fig.titles <-
-  readxl::read_xlsx("../common/Data/figure_titles.xlsx", sheet = "titles", .name_repair = janitor::make_clean_names) %>%
+  readxl::read_xlsx("../common/data/figure_titles.xlsx", sheet = "titles", .name_repair = janitor::make_clean_names) %>%
   filter(dimension == "Demographic") %>%
   select(measure, indicator, subsets, figure, title, tool_tip_text, numerator, num_source, denominator, den_source) %>%
   mutate(num_source = paste0("(", num_source, ")"),
