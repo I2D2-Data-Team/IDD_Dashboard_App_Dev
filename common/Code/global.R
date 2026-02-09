@@ -1,23 +1,10 @@
-library(tidyverse)
+# library(tidyverse)
 
 # READ Data --------------------------------------------------------------------
 
-# Read sf data for mapping State of Iowa
-ia_state_map <- read_rds("../common/Data/map_IA-state.rds")
-# # Read sf data for mapping Counties of Iowa
-# ia_county_map <- read_rds("../common/Data/map_IA-county.rds")
-# # Read sf data for mapping ECI areas
-# eci_area_map <- read_rds("../common/Data/map_ECI-areas.rds")
-# # Read sf data for mapping HHS Regions
-# hhs_area_map <- read_rds("../common/Data/map_HHS-regions.rds")
-# # Read sf data for mapping Head Start Grantees
-# hs_area_map <- read_rds("../common/Data/map_HS-grantess.rds")
-# # Read sf data for mapping MIECHV Service Areas
-# miechv_area_map <- read_rds("../common/Data/map_MIECHV-areas.rds")
-
-
 # Read Iowa county crosswalk for all service geographies
-ia_county_crosswalk <- read_csv("../common/Data/county_crosswalk.csv", col_types = cols(.default = "c")) %>% janitor::clean_names()
+ia_county_crosswalk <- 
+  read_csv("https://raw.githubusercontent.com/I2D2-Data-Team/IDD_Dashboard_App_Dev/refs/heads/main/common/data/ia_county_crosswalk.csv")
 
 
 # Geographies -------------------------------------------------------------

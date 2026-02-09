@@ -1,5 +1,14 @@
-library(tidyverse)
+# Only load tidyverse packages that is used by shiny 
+# packages that are not used from tidyverse are commented out
+library(readr)
+library(dplyr)
+library(stringr)
 library(ggplot2)
+# library(forcats)
+# library(lubridate)
+# library(purrr)
+# library(tibble)
+# library(tidyr)
 library(ggrepel)
 library(ggtext)
 library(magick)
