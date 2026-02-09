@@ -89,7 +89,7 @@ ui <- page_sidebar(
   tags$script(src = "https://cdn.jsdelivr.net/gh/Appsilon/shiny.tictoc@v0.2.0/shiny-tic-toc.min.js"),
   
   # Add CSS styling
-  includeCSS("https://raw.githubusercontent.com/I2D2-Data-Team/IDD_App_Dev/refs/heads/main/common/Code/www/style.css"),
+  includeCSS("https://raw.githubusercontent.com/I2D2-Data-Team/IDD_Dashboard_App_Dev/refs/heads/main/common/Code/www/style.css"),
   
   # Add titile for browser
   window_title = "DEV Iowa Data Drive",
