@@ -7,19 +7,19 @@ dim_dir <- "Demographic"
 
 # READ METADATA -----------------------------------------------------------
 
-# Read indicator type
+# Read indicator types
 metadata.fig.types <-
-  readxl::read_xlsx("data/figure_titles.xlsx", sheet = "type", .name_repair = janitor::make_clean_names) %>%
+  read_csv("https://raw.githubusercontent.com/I2D2-Data-Team/IDD_Dashboard_App_Dev/refs/heads/main/common/data/idd_data_type.csv") %>%
   filter(dimension == "Demographic")
 
+# Read indicator sources
+metadata.fig.sources <-
+  read_csv("https://raw.githubusercontent.com/I2D2-Data-Team/IDD_Dashboard_App_Dev/refs/heads/main/common/data/idd_data_source.csv")
+  
 # Read figure titles and tooltips
 metadata.fig.titles <-
-  readxl::read_xlsx("data/figure_titles.xlsx", sheet = "titles", .name_repair = janitor::make_clean_names) %>%
-  filter(dimension == "Demographic") %>%
-  select(measure, indicator, subsets, figure, title, tool_tip_text, numerator, num_source, denominator, den_source) %>%
-  mutate(num_source = paste0("(", num_source, ")"),
-         den_source = paste0("(", den_source, ")"))
-
+  read_csv("https://raw.githubusercontent.com/I2D2-Data-Team/IDD_Dashboard_App_Dev/refs/heads/main/common/data/idd_tooltip.csv") %>%
+  filter(dimension == "Demographic") %>% rename(tool_tip_text = tool_tip_desc)
 
 # READ DATA ---------------------------------------------------------------
 
