@@ -1,0 +1,11 @@
+ID,dimension,measure,indicator,source,data ,min_year,max_year,date_obtained,Link,notes
+5501,Demographic,Household Characteristics,First Time Mother,Iowa's Integrated Data System for Decision-Making (I2D2),Iowa Birth Records,2007,2024,1/26/2026,https://i2d2.iastate.edu/,
+5502,Health and Social Needs,Birth Risks,Birth to Teenage Mother         ,Iowa's Integrated Data System for Decision-Making (I2D2),Iowa Birth Records,2007,2024,1/26/2026,https://i2d2.iastate.edu/,
+5503,Health and Social Needs,Birth Risks,Birth to Unmarried Mother       ,Iowa's Integrated Data System for Decision-Making (I2D2),Iowa Birth Records,2007,2024,1/26/2026,https://i2d2.iastate.edu/,
+5504,Health and Social Needs,Birth Risks,Cumulative Birth Risks          ,Iowa's Integrated Data System for Decision-Making (I2D2),Iowa Birth Records,2007,2024,1/26/2026,https://i2d2.iastate.edu/,
+5505,Health and Social Needs,Birth Risks,Inadequate Prenatal Care        ,Iowa's Integrated Data System for Decision-Making (I2D2),Iowa Birth Records,2007,2024,1/26/2026,https://i2d2.iastate.edu/,
+5506,Health and Social Needs,Birth Risks,Low Maternal Education at Birth ,Iowa's Integrated Data System for Decision-Making (I2D2),Iowa Birth Records,2007,2024,1/26/2026,https://i2d2.iastate.edu/,
+5507,Health and Social Needs,Birth Risks,Medicaid or WIC Receipt at Birth,Iowa's Integrated Data System for Decision-Making (I2D2),Iowa Birth Records,2007,2024,1/26/2026,https://i2d2.iastate.edu/,
+5508,Health and Social Needs,Birth Risks,Prenatal Tobacco Exposure       ,Iowa's Integrated Data System for Decision-Making (I2D2),Iowa Birth Records,2007,2024,1/26/2026,https://i2d2.iastate.edu/,
+5509,Health and Social Needs,Birth Risks,Preterm or Low Birth Weight     ,Iowa's Integrated Data System for Decision-Making (I2D2),Iowa Birth Records,2007,2024,1/26/2026,https://i2d2.iastate.edu/,
+5510,Health and Social Needs,Education,Maternal Education,Iowa's Integrated Data System for Decision-Making (I2D2),Iowa Birth Records,2007,2024,1/27/2026,https://i2d2.iastate.edu/,
