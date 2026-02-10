@@ -7,16 +7,19 @@ library(waiter)
 
 data_select_ui <- function(id) {
   ns <- NS(id)
+  df_info <- metadata.fig.sources[1,]
   fluidRow(
     column(
       width = 12,
       wellPanel(
         h3(strong("Data")),
         tags$hr(style = "margin: 0; padding: 0; height: 10px; border-top: 2px solid;"), # Styling should go to CSS file
-        p(strong("Source: "), "SENCUS ACS", a("Table 123", href = "https://www.census.gov/programs-surveys/acs/data.html")),
-        p(strong("Available Years: "), "2018-2025"),
-        p(strong("Date Obtained: "), "January 29, 2026"),
-        p(strong("Note: "), "Some notes about indicator"),
+        p(strong("Source: "), df_info$source, a(df_info$data, href = df_info$link)),
+        p(strong("Available Years: "), df_info$min_year, "-", df_info$max_year),
+        p(strong("Date Obtained: "), df_info$date_obtained),
+        if (!is.na(df_info$notes)) {
+          p(strong("Note: "), df_info$notes)
+        },
         br(),
         p("For additional info, see the ", a("IA Data Drive Manual", href = "https://i2d2.iastate.edu/wp-content/uploads/2025/04/IA-Data-Drive-Manual-v3.3.pdf"))
       )
@@ -32,37 +35,11 @@ data_select_server <- function(id, INDICATOR, DATA) {
       ns <- session$ns
       
       data <- reactive({
-        df <- DATA %>%
-          my_indicators_data %>% 
+        df <- 
+          metadata.fig.sources %>% 
           # select indicator of interest
-          filter(indicator_name == INDICATOR) %>%
-          # limit number of digits printed 
-          mutate(value = round(value, 3)) %>%
-          # rename column for grouping multi-level indicator
-          {if (INDICATOR == "childcare_availability")
-            mutate(., provider_type = group_level)
-            else if (INDICATOR == "mom_edu")
-              mutate(., education_level = group_level)
-            else if (INDICATOR == "pre_school_enrolled")
-              mutate(., academic_year = year_academic)
-            else . } %>%
-          # select only relevant variables
-          select(
-            any_of(
-              c(`Variable Name` = "variable_label", 
-                `FIPS Code` = "fips",
-                `County Name` = "county_name", 
-                `Year` = "year", 
-                `Academic Year` = "academic_year",
-                `Provider Type` = "provider_type", 
-                `Homeless Type` = "homeless_type",
-                `Income Level` = "income_level",
-                `Children Present` = "children_present",
-                `Education Level` = "education_level",
-                `Individual Risk` = "individual_risk",
-                `Cumulative Risk` = "cumulative_risk",
-                `Value` = "value",
-                `Variable Type` = "variable_type")))
+          filter(indicator == INDICATOR) %>%
+          select(indicator:notes)
         
         return(df)
       })
@@ -502,15 +479,16 @@ server <- function(input, output, session) {
       req(input$HSE_SUBSET)
       titles <- 
         metadata.fig.titles %>% 
-        filter(measure == input$MEASURE, indicator == current_indicator(), subsets == input$HSE_SUBSET) %>%
-        select(measure, indicator, figure, title, tool_tip_text, numerator, num_source, denominator, den_source)
+        filter(measure == input$MEASURE, indicator == current_indicator(), subsets == input$HSE_SUBSET)
     } else {
       titles <- 
         metadata.fig.titles %>% 
-        filter(measure == input$MEASURE, indicator == current_indicator()) %>%
-        select(measure, indicator, figure, title, tool_tip_text, numerator, num_source, denominator, den_source)
+        filter(measure == input$MEASURE, indicator == current_indicator())
     }
-    return(titles)
+    output <- 
+      titles %>%
+      select(measure, indicator, figure, title, tool_tip_text, numerator, num_source, denominator, den_source)
+    return(output)
   })
   
   ### ··· Render figure titles 

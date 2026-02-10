@@ -48,11 +48,14 @@ tooltip_new <-
         TRUE ~ subsets)
     ) %>%
   full_join(metadata.fig.titles %>% distinct(figure_id, dimension, measure, indicator, subsets, figure)) %>%
-  select(figure_id, dimension, measure, indicator, subsets, figure, title:notes)
+  select(figure_id, dimension, measure, indicator, subsets, figure, title:notes) %>%
+  mutate(num_source = ifelse(is.na(num_source), NA_character_, paste0("(", num_source, ")")),
+         den_source = ifelse(is.na(den_source), NA_character_, paste0("(", den_source, ")")))
 
 # save data
 tooltip_new %>% 
   mutate(id = str_sub(figure_id, 1, 11)) %>%
+  rename(tool_tip_text = tool_tip_desc) %>%
   select(id, everything()) %>%
   write_csv("../common/data/idd_tooltip.csv")
 
