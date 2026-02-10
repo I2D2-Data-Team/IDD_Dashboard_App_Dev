@@ -1,0 +1,42 @@
+id,dimension,measure,indicator,data_type
+DEM.DEM.AGE,Demographic,Child Demographics,Child Age,percent
+DEM.DEM.RAC,Demographic,Child Demographics,Child Race and Ethnicity,percent
+DEM.HSE.FTM,Demographic,Household Characteristics,First Time Mother,percent
+DEM.HSE.LNG,Demographic,Household Characteristics,Language Spoken at Home,percent
+DEM.HSE.SCH,Demographic,Household Characteristics,Work Schedules,percent
+DEM.HSE.TCH,Demographic,Household Characteristics,Technology Access,percent
+DEM.HSE.TRN,Demographic,Household Characteristics,Transportation,percent
+DEM.HSE.TYP,Demographic,Household Characteristics,Household Type,percent
+DEM.HSE.WRK,Demographic,Household Characteristics,Working Parents,percent
+ECO.APP.FPL,Economic,All People in Poverty,Federal Poverty Level (FPL),percent
+ECO.CIP.FPL,Economic,Children in Poverty,Federal Poverty Level (FPL),percent
+ECO.CIP.FRL,Economic,Children in Poverty,Free or Reduced Price Lunch (FRPL),percent
+ECO.CIP.MOW,Economic,Children in Poverty,Medicaid or WIC Receipt at Birth,percent
+ECO.HOM.PIT,Economic,Homelessness,Point in Time (PIT),rate
+ECO.HOM.SEH,Economic,Homelessness,Students Facing Homelessness,percent
+ECO.UNE.UER,Economic,Unemployment,Unemployment,percent
+HSN.CHL.CAN,Health and Social Needs,Child Health,Child Abuse or Neglect,rate
+HSN.CHL.IMM,Health and Social Needs,Child Health,Immunizations,percent
+HSN.CRM.ADR,Health and Social Needs,Community Crime,Alcohol and Drug-Related Crime,rate
+HSN.CRM.ARR,Health and Social Needs,Community Crime,Arrest,rate
+HSN.CRM.DMV,Health and Social Needs,Community Crime,Domestic Violence,rate
+HSN.CRM.SER,Health and Social Needs,Community Crime,Serious Crime,rate
+HSN.DIS.CDS,Health and Social Needs,Disabilities,Disabilities,percent
+HSN.EDU.EAM,Health and Social Needs,Education,Maternal Education,percent
+HSN.EDU.ELS,Health and Social Needs,Education,Early Literacy Skills,percent
+HSN.EDU.HDP,Health and Social Needs,Education,Dropout Rate,percent
+HSN.EDU.SCH,Health and Social Needs,Education,School Enrollment,percent
+HSN.RSK.BTM,Health and Social Needs,Birth Risks,Birth to Teenage Mother,percent
+HSN.RSK.BUM,Health and Social Needs,Birth Risks,Birth to Unmarried Mother,percent
+HSN.RSK.CUM,Health and Social Needs,Birth Risks,Cumulative Birth Risks,percent
+HSN.RSK.IPC,Health and Social Needs,Birth Risks,Inadequate Prenatal Care,percent
+HSN.RSK.LME,Health and Social Needs,Birth Risks,Low Maternal Education at Birth,percent
+HSN.RSK.MOW,Health and Social Needs,Birth Risks,Medicaid or WIC Receipt at Birth,percent
+HSN.RSK.PLW,Health and Social Needs,Birth Risks,Preterm or Low Birth Weight,percent
+HSN.RSK.PTE,Health and Social Needs,Birth Risks,Prenatal Tobacco Exposure,percent
+SRV.SER.CCA,Services,Human Services,Availability of Child Care,percent
+SRV.SER.DNT,Services,Human Services,Dental Services,percent
+SRV.SER.FST,Services,Human Services,Foster Care,rate
+SRV.SER.HCC,Services,Human Services,Health Coverage,percent
+SRV.SER.SNP,Services,Human Services,SNAP,percent
+SRV.SER.WIC,Services,Human Services,WIC,percent

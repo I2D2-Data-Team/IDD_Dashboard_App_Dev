@@ -4,10 +4,6 @@
 
 # Save a Clean Version of Tooltip -----------------------------------------
 
-# Read indicator type
-metadata.fig.types <-
-  readxl::read_xlsx("data/figure_titles.xlsx", sheet = "type", .name_repair = janitor::make_clean_names)
-
 # Read figure titles and tooltips
 metadata.fig.titles <-
   readxl::read_xlsx("data/figure_titles.xlsx", sheet = "titles", .name_repair = janitor::make_clean_names, col_types = "text") %>%
@@ -28,12 +24,12 @@ metadata.fig.titles %>% distinct(figure_id, dimension, measure, indicator, subse
   select(1:7) %>%
   count(dimension, measure, indicator, subsets)
 
-# Check values in my metadata
-metadata.fig.titles %>% filter(indicator == "First Time Mother")
-metadata.fig.titles %>% filter(indicator == "Immunizations")
-tooltip %>% filter(indicator == "Immunizations")
-metadata.fig.titles %>% filter(indicator == "Household Type")
-tooltip %>% filter(indicator == "Household Type")
+# # Check values in my metadata
+# metadata.fig.titles %>% filter(indicator == "First Time Mother")
+# metadata.fig.titles %>% filter(indicator == "Immunizations")
+# tooltip %>% filter(indicator == "Immunizations")
+# metadata.fig.titles %>% filter(indicator == "Household Type")
+# tooltip %>% filter(indicator == "Household Type")
 
 # Clean and combine data
 tooltip_new <-
@@ -55,7 +51,10 @@ tooltip_new <-
   select(figure_id, dimension, measure, indicator, subsets, figure, title:notes)
 
 # save data
-write_csv(tooltip_new, "../common/data/idd_tooltip.csv")
+tooltip_new %>% 
+  mutate(id = str_sub(figure_id, 1, 11)) %>%
+  select(id, everything()) %>%
+  write_csv("../common/data/idd_tooltip.csv")
 
 
 # Save a Clean Version of Data Source -------------------------------------
@@ -99,5 +98,17 @@ tooltip_new %>%
   mutate(id = str_remove(figure_id, ".{4}$")) %>%
   distinct(id, dimension, measure, indicator) %>%
   full_join(datasource_new) %>%
-  write_csv("../common/data/idd_datasource.csv")
+  write_csv("../common/data/idd_data_source.csv")
 
+
+
+# Save Data Type ----------------------------------------------------------
+
+# Read indicator type
+metadata.fig.types <-
+  readxl::read_xlsx("data/figure_titles.xlsx", sheet = "type", .name_repair = janitor::make_clean_names)
+
+# save data
+metadata.fig.types %>% 
+  select(id = indicator_id, dimension, measure, indicator, data_type) %>%
+  write_csv("../common/data/idd_data_type.csv")
