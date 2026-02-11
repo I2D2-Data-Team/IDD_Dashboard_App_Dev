@@ -5,8 +5,7 @@ library(bsicons)
 library(waiter)
 
 
-data_select_ui <- function(id) {
-  ns <- NS(id)
+data_source_ui_COMP <- function(id) {
   df_info <- metadata.fig.sources[1,]
   fluidRow(
     column(
@@ -27,22 +26,49 @@ data_select_ui <- function(id) {
   )
 }
 
-data_select_server <- function(id, INDICATOR, DATA) {
-  
-  moduleServer(
-    id,
-    function(input, output, session) {
-      ns <- session$ns
-      
-      data <- reactive({
-        df <- 
-          metadata.fig.sources %>% 
-          # select indicator of interest
-          filter(indicator == INDICATOR) %>%
-          select(indicator:notes)
-        
-        return(df)
+data_source_ui <- function(id) {
+  ns <- NS(id)
+  fluidRow(
+    column(
+      width = 12,
+      wellPanel(
+        h3(strong("Data")),
+        tags$hr(style = "margin: 0; padding: 0; height: 10px; border-top: 2px solid;"), # Styling should go to CSS file
+        uiOutput(ns("display_info")),
+        br(),
+        p("For additional info, see the ", a("IA Data Drive Manual", href = "https://i2d2.iastate.edu/wp-content/uploads/2025/04/IA-Data-Drive-Manual-v3.3.pdf"))
+      )
+    )
+  )
+}
+
+data_source_server <- function(id, selected_indicator, metadata) {
+  moduleServer(id, function(input, output, session) {
+    # Render the content that goes to display_info
+    output$display_info <- renderUI({
+      # ensure an indicator is selected before processing farther
+      req(selected_indicator())
+      # select metadata for selected indicator (from table metadata.fig.sources)
+      info <- reactive({
+        metadata.fig.sources %>% 
+          filter(indicator == selected_indicator())
       })
+      df <- info() %>% slice(1)
+      tags$div(
+        class = "metadata-container",
+        tagList(
+          p(strong("Source: "), df$source, a(df$data, href = df$link)),
+          p(strong("Available Years: "), df$min_year, "-", df$max_year),
+          p(strong("Date Obtained: "), df$date_obtained),
+          if (!is.na(df$notes)) {
+            p(strong("Note: "), df$notes)
+          },
+          p(selected_indicator())
+        )
+      )
+    })
+      
+
       
     }
   )
@@ -198,7 +224,10 @@ ui <- page_sidebar(
         )
       ),
       br(),
-      data_select_ui(id = "GIO"),
+      # ....................... TESTING ......................---------
+      data_source_ui_COMP(id = "GIO"),
+      data_source_ui(id = "DEM_DATA_SOURCE"),
+      # ....................... TESTING ......................---------
       br()
     ),
     
@@ -568,6 +597,10 @@ server <- function(input, output, session) {
         (data.dem.3() %>% filter(group_level == input$DEM_GROUP) %>% mutate(group_level = subset_level))
       )
   })
+  
+  # ....................... TESTING ......................---------
+  data_source_server("DEM_DATA_SOURCE", current_indicator, metadata.fig.sources)
+  # ....................... TESTING ......................---------
   
   ### ··· MAP ------------------------------------------------------------------
   ### ··· Get subset of selected DEM data for map
