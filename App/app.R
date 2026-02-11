@@ -424,7 +424,6 @@ server <- function(input, output, session) {
   
   ### ··· Get data type of active indicator 
   current_indicator_type <- reactive({
-    req(input$MEASURE)
     req(current_indicator())
     type <-
       metadata.fig.types %>%
@@ -436,7 +435,7 @@ server <- function(input, output, session) {
   
   ### ··· Get metadata for selected DEM indicator 
   fig_titles <- reactive({
-    req(current_indicator(), input$MEASURE)
+    req(current_indicator())
     if (input$MEASURE == "Household Characteristics" && current_indicator() == "Technology Access") {
       req(input$HSE_SUBSET)
       titles <- 
@@ -464,8 +463,19 @@ server <- function(input, output, session) {
   output$HSE_FIG_NAME_4B <- compose_tooltip_language("GIO.fig4.tooltip", fig_titles, years = reactive(input$HSE_TREND_YEARS), fig = 2) # assign fig = 2 to show year range
   
   ### ··· Render indicator info ---------------- 
-  build_data_source_container_server("DEM_DATA_SOURCE", current_indicator, metadata.fig.sources)
-  build_data_source_container_server("HSE_DATA_SOURCE", current_indicator, metadata.fig.sources)
+  
+  ### ··· Get source for active indicator 
+  current_indicator_source <- reactive({
+    req(current_indicator())
+    source <-
+      metadata.fig.sources %>%
+      filter(measure == input$MEASURE,
+             indicator == current_indicator())
+    return(source)
+  })
+  
+  build_data_source_container_server("DEM_DATA_SOURCE", current_indicator_source())
+  build_data_source_container_server("HSE_DATA_SOURCE", current_indicator_source())
   
   # PLOT figures ---------------------------------------------------------------
   
