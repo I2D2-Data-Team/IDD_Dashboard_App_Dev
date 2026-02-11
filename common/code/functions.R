@@ -1,20 +1,3 @@
-# Only load tidyverse packages that is used by shiny 
-# packages that are not used from tidyverse are commented out
-library(readr)
-library(dplyr)
-library(stringr)
-library(ggplot2)
-# library(forcats)
-# library(lubridate)
-# library(purrr)
-# library(tibble)
-# library(tidyr)
-library(ggrepel)
-library(ggtext)
-library(magick)
-library(AzureStor)
-
-
 # Read sf data for mapping State of Iowa
 ia_state_map <- read_rds("../common/data/map_IA-state.rds")
 
