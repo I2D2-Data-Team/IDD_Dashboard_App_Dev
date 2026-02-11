@@ -5,77 +5,6 @@ library(bsicons)
 library(waiter)
 
 
-data_source_ui_COMP <- function(id) {
-  df_info <- metadata.fig.sources[1,]
-  fluidRow(
-    column(
-      width = 12,
-      wellPanel(
-        h3(strong("Data")),
-        tags$hr(style = "margin: 0; padding: 0; height: 10px; border-top: 2px solid;"), # Styling should go to CSS file
-        p(strong("Source: "), df_info$source, a(df_info$data, href = df_info$link)),
-        p(strong("Available Years: "), df_info$min_year, "-", df_info$max_year),
-        p(strong("Date Obtained: "), df_info$date_obtained),
-        if (!is.na(df_info$notes)) {
-          p(strong("Note: "), df_info$notes)
-        },
-        br(),
-        p("For additional info, see the ", a("IA Data Drive Manual", href = "https://i2d2.iastate.edu/wp-content/uploads/2025/04/IA-Data-Drive-Manual-v3.3.pdf"))
-      )
-    )
-  )
-}
-
-data_source_ui <- function(id) {
-  ns <- NS(id)
-  fluidRow(
-    column(
-      width = 12,
-      wellPanel(
-        h3(strong("Data")),
-        tags$hr(style = "margin: 0; padding: 0; height: 10px; border-top: 2px solid;"), # Styling should go to CSS file
-        uiOutput(ns("display_info")),
-        br(),
-        p("For additional info, see the ", a("IA Data Drive Manual", href = "https://i2d2.iastate.edu/wp-content/uploads/2025/04/IA-Data-Drive-Manual-v3.3.pdf"))
-      )
-    )
-  )
-}
-
-data_source_server <- function(id, selected_indicator, metadata) {
-  moduleServer(id, function(input, output, session) {
-    # Render the content that goes to display_info
-    output$display_info <- renderUI({
-      # ensure an indicator is selected before processing farther
-      req(selected_indicator())
-      # select metadata for selected indicator (from table metadata.fig.sources)
-      info <- reactive({
-        metadata.fig.sources %>% 
-          filter(indicator == selected_indicator())
-      })
-      df <- info() %>% slice(1)
-      tags$div(
-        class = "metadata-container",
-        tagList(
-          p(strong("Source: "), df$source, a(df$data, href = df$link)),
-          p(strong("Available Years: "), df$min_year, "-", df$max_year),
-          p(strong("Date Obtained: "), df$date_obtained),
-          if (!is.na(df$notes)) {
-            p(strong("Note: "), df$notes)
-          },
-          p(selected_indicator())
-        )
-      )
-    })
-      
-
-      
-    }
-  )
-}
-
-
-
 
 # START UI ---------------------------------------------------------------------
 ui <- page_sidebar(
@@ -225,8 +154,7 @@ ui <- page_sidebar(
       ),
       br(),
       # ....................... TESTING ......................---------
-      data_source_ui_COMP(id = "GIO"),
-      data_source_ui(id = "DEM_DATA_SOURCE"),
+      build_data_source_container_ui(id = "DEM_DATA_SOURCE"),
       # ....................... TESTING ......................---------
       br()
     ),
@@ -350,7 +278,12 @@ ui <- page_sidebar(
             shiny::downloadButton("HSE_BAR_DOWNLOAD", label = "Download the Bar Chart")
           )
         )
-      )
+      ),
+      
+      br(),
+      # ....................... TESTING ......................---------
+      build_data_source_container_ui(id = "HSE_DATA_SOURCE"),
+      # ....................... TESTING ......................---------
     )
     # END of Tab Panels ----------------------------------------------------------
   )
@@ -530,6 +463,9 @@ server <- function(input, output, session) {
   output$HSE_FIG_NAME_3B <- compose_tooltip_language("GIO.fig3.tooltip", fig_titles, years = year_range.hse, fig = 3)
   output$HSE_FIG_NAME_4B <- compose_tooltip_language("GIO.fig4.tooltip", fig_titles, years = reactive(input$HSE_TREND_YEARS), fig = 2) # assign fig = 2 to show year range
   
+  ### ··· Render indicator info ---------------- 
+  build_data_source_container_server("DEM_DATA_SOURCE", current_indicator, metadata.fig.sources)
+  build_data_source_container_server("HSE_DATA_SOURCE", current_indicator, metadata.fig.sources)
   
   # PLOT figures ---------------------------------------------------------------
   
@@ -597,10 +533,6 @@ server <- function(input, output, session) {
         (data.dem.3() %>% filter(group_level == input$DEM_GROUP) %>% mutate(group_level = subset_level))
       )
   })
-  
-  # ....................... TESTING ......................---------
-  data_source_server("DEM_DATA_SOURCE", current_indicator, metadata.fig.sources)
-  # ....................... TESTING ......................---------
   
   ### ··· MAP ------------------------------------------------------------------
   ### ··· Get subset of selected DEM data for map

@@ -12,8 +12,8 @@
 /* This targets every <p> tag that is inside a .metadata-container */
 .metadata-container p {
   margin-bottom: 2px;
-  margin-top: 0px;
-  font-size: 0.9em; 
+  margin-top: 2px;
+  /* font-size: 0.9em; */
 }
 
 

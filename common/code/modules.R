@@ -121,3 +121,63 @@ compose_tooltip_language <- function(id, data, years, fig = 1) {
   })
 }
 
+
+# Build container with data source info ------------------------------------
+build_data_source_container_ui <- function(id) {
+  ns <- NS(id)
+  fluidRow(
+    column(
+      width = 12,
+      wellPanel(
+        h3(strong("Data")),
+        tags$hr(style = "margin: 0; padding: 0; height: 10px; border-top: 2px solid;"),
+        uiOutput(ns("display_info")),
+        p("For additional info, see the ", 
+          a("IA Data Drive Manual", 
+            href = "https://i2d2.iastate.edu/wp-content/uploads/2025/04/IA-Data-Drive-Manual-v3.3.pdf",
+            target = "_blank", rel = "noopener noreferrer"))
+      )
+    )
+  )
+}
+
+build_data_source_container_server <- function(id, selected_indicator, metadata) {
+  moduleServer(id, function(input, output, session) {
+    # Render the content that goes to display_info
+    output$display_info <- renderUI({
+      # ensure an indicator is selected before processing farther
+      req(selected_indicator())
+      # select metadata for selected indicator (from table metadata.fig.sources)
+      info <- reactive({
+        metadata %>% 
+          filter(indicator == selected_indicator())
+      })
+      df <- info() %>%
+        select(source, data, link, min_year, max_year, date_obtained, notes)
+      
+      # If no data is found return a silent message
+      if (nrow(df) == 0) return(
+        tags$p("No metadata available.")
+      )
+      # handle when indicator have multiple sources
+      ui_elements <- pmap(df, function(source, data, link, min_year, max_year, date_obtained, notes) {
+        # Define the HTML for ONE item
+        tags$div(
+          class = "metadata-container",
+          tagList(
+            p(strong("Source: "), source, a(data, href = link, target = "_blank", rel = "noopener noreferrer")),
+            p(strong("Available Years: "), min_year, "-", max_year),
+            p(strong("Date Obtained: "), date_obtained),
+            if (!is.na(notes)) {
+              p(strong("Note: "), notes)
+            },
+            br()
+          )
+        )
+      })
+      # IMPORTANT: Convert the list of tags into a Shiny tagList
+      do.call(tagList, ui_elements) 
+    })
+  }
+  )
+}
