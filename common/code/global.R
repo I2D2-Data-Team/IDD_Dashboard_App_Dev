@@ -1,10 +1,22 @@
 # library(tidyverse)
 
-# READ Data --------------------------------------------------------------------
+# READ METADATA -----------------------------------------------------------
 
 # Read Iowa county crosswalk for all service geographies
 ia_county_crosswalk <- 
   read_csv("https://raw.githubusercontent.com/I2D2-Data-Team/IDD_Dashboard_App_Dev/refs/heads/main/common/data/ia_county_crosswalk.csv")
+
+# Read indicator types
+metadata.fig.types <-
+  read_csv("https://raw.githubusercontent.com/I2D2-Data-Team/IDD_Dashboard_App_Dev/refs/heads/main/common/data/idd_data_type.csv")
+
+# Read indicator sources
+metadata.fig.sources <-
+  read_csv("https://raw.githubusercontent.com/I2D2-Data-Team/IDD_Dashboard_App_Dev/refs/heads/main/common/data/idd_data_source.csv")
+
+# Read figure titles and tooltips
+metadata.fig.titles <-
+  read_csv("https://raw.githubusercontent.com/I2D2-Data-Team/IDD_Dashboard_App_Dev/refs/heads/main/common/data/idd_tooltip.csv")
 
 
 # Geographies -------------------------------------------------------------

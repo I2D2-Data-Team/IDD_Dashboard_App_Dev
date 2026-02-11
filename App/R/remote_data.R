@@ -8,21 +8,20 @@ source("https://raw.githubusercontent.com/I2D2-Data-Team/IDD_Dashboard_App_Dev/r
 dim_dir <- "Demographic"
 
 
-# READ METADATA -----------------------------------------------------------
+# # READ METADATA -----------------------------------------------------------
+# 
+# # Read indicator types
+# metadata.fig.types <-
+#   read_csv("https://raw.githubusercontent.com/I2D2-Data-Team/IDD_Dashboard_App_Dev/refs/heads/main/common/data/idd_data_type.csv")
+# 
+# # Read indicator sources
+# metadata.fig.sources <-
+#   read_csv("https://raw.githubusercontent.com/I2D2-Data-Team/IDD_Dashboard_App_Dev/refs/heads/main/common/data/idd_data_source.csv")
+#   
+# # Read figure titles and tooltips
+# metadata.fig.titles <-
+#   read_csv("https://raw.githubusercontent.com/I2D2-Data-Team/IDD_Dashboard_App_Dev/refs/heads/main/common/data/idd_tooltip.csv")
 
-# Read indicator types
-metadata.fig.types <-
-  read_csv("https://raw.githubusercontent.com/I2D2-Data-Team/IDD_Dashboard_App_Dev/refs/heads/main/common/data/idd_data_type.csv") %>%
-  filter(dimension == "Demographic")
-
-# Read indicator sources
-metadata.fig.sources <-
-  read_csv("https://raw.githubusercontent.com/I2D2-Data-Team/IDD_Dashboard_App_Dev/refs/heads/main/common/data/idd_data_source.csv")
-  
-# Read figure titles and tooltips
-metadata.fig.titles <-
-  read_csv("https://raw.githubusercontent.com/I2D2-Data-Team/IDD_Dashboard_App_Dev/refs/heads/main/common/data/idd_tooltip.csv") %>%
-  filter(dimension == "Demographic")
 
 # READ DATA ---------------------------------------------------------------
 
