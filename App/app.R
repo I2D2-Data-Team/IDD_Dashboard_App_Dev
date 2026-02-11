@@ -462,7 +462,7 @@ server <- function(input, output, session) {
   output$HSE_FIG_NAME_3B <- compose_tooltip_language("GIO.fig3.tooltip", fig_titles, years = year_range.hse, fig = 3)
   output$HSE_FIG_NAME_4B <- compose_tooltip_language("GIO.fig4.tooltip", fig_titles, years = reactive(input$HSE_TREND_YEARS), fig = 2) # assign fig = 2 to show year range
   
-  ### ··· Render indicator info ---------------- 
+  ## > Create DATA SOURCE INFO -------------------------------------------------
   
   ### ··· Get source for active indicator 
   current_indicator_source <- reactive({
@@ -474,8 +474,9 @@ server <- function(input, output, session) {
     return(source)
   })
   
-  build_data_source_container_server("DEM_DATA_SOURCE", current_indicator_source())
-  build_data_source_container_server("HSE_DATA_SOURCE", current_indicator_source())
+  ### ... Render indicator data source info 
+  build_data_source_container_server("DEM_DATA_SOURCE", current_indicator_source)
+  build_data_source_container_server("HSE_DATA_SOURCE", current_indicator_source)
   
   # PLOT figures ---------------------------------------------------------------
   
@@ -1261,7 +1262,7 @@ server <- function(input, output, session) {
   #   # nrow(map_data.hse.subset())
   # })
   # output$TABLE1 <- renderTable({
-  #   map_data.hse.subset() %>% head(10) %>% select(-count, - dimension)
+  #   current_indicator_source()
   #   # bar_data.hse.subset() %>% head(7)
   # })
  
