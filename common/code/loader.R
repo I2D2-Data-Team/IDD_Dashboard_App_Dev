@@ -21,9 +21,11 @@ library(sf)
 
 # Load R scripts ---------------------------------------------------------------
 
-if (Sys.getenv("USERNAME") == "gio") {
+if (Sys.getenv("USERNAME") == "gio" & exists("check.this.to.run.local")) {
+  print(cat("Reading code from local dir"))
   common.function.path <- ".."
 } else {
+  print(cat("Reading code from remote dir"))
   common.function.path <- "https://raw.githubusercontent.com/I2D2-Data-Team/IDD_Dashboard_App_Dev/refs/heads/main"
 }
 

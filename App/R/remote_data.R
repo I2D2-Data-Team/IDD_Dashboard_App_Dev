@@ -1,3 +1,6 @@
+# run local version of code
+check.this.to.run.local <- "Y"
+
 # source("../common/code/loader.R")
 source("https://raw.githubusercontent.com/I2D2-Data-Team/IDD_Dashboard_App_Dev/refs/heads/main/common/code/loader.R")
 
@@ -19,7 +22,7 @@ metadata.fig.sources <-
 # Read figure titles and tooltips
 metadata.fig.titles <-
   read_csv("https://raw.githubusercontent.com/I2D2-Data-Team/IDD_Dashboard_App_Dev/refs/heads/main/common/data/idd_tooltip.csv") %>%
-  filter(dimension == "Demographic") %>% rename(tool_tip_text = tool_tip_desc)
+  filter(dimension == "Demographic")
 
 # READ DATA ---------------------------------------------------------------
 
