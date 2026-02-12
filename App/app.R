@@ -40,7 +40,7 @@ library(waiter)
 #     coord_cartesian(clip = "off")
 #   
 #   return(download_fig)
-}
+# }
 # # TESTING <<<<<<<<<<<<<<< -------------------------------------------------
 
 

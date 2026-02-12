@@ -216,7 +216,7 @@ if (nrow(my_df) > 1) {
   my_data_source_list <- ""
 }
 
-fig_titles <-
+fig_sources <-
   my_df %>%
   mutate(data = "Table C09001", source = "CENSUS") %>%
   bind_rows(my_df) %>%
@@ -228,6 +228,10 @@ fig_titles <-
             years = paste0(max(min_year), "-", max(max_year))
   ) %>%
   ungroup()
+
+fig_titles <-
+  metadata.fig.titles %>% 
+  filter(indicator == 'Child Age')
 
 # Start plotting line chart
 p2 <- 
@@ -247,11 +251,11 @@ logo_grob_fixed <-
                    width = unit(2.2, "cm"))
 
 p2 + 
-  labs(title = paste(fig_titles$measure, fig_titles$indicator),
-       # subtitle = "subtitle goes here",
+  labs(title = paste(fig_titles$title[1], "This is some bs text to make it VEEEEEEEERY long and anoying"),
+       subtitle = "",
        caption = sprintf(
          "<br>**Source:** I2D2, IA Data Drive, %s<br>**Data:** %s.<br>**Year:** %s<br>**Downloaded on:** %s",
-         url, fig_titles$source, fig_titles$year, fig_titles$date),
+         url, fig_sources$source, fig_sources$year, fig_sources$date),
        tag = "Developed by Giorgi Chighladze",
        alt = "Figure") +
   annotation_custom(logo_grob_fixed) +
@@ -260,7 +264,7 @@ p2 +
     plot.caption = element_markdown(size = 10, hjust = 0, margin = margin(l = 20), lineheight = 1.3),
     plot.tag.position = c(0.99, 0.19),
     plot.tag = element_text(hjust = 1, vjust = 1, size = 9, face = "bold.italic", color = "grey99"),
-    plot.margin = margin(t = 5, b = 5, unit = "pt")
+    plot.margin = margin(t = 15, b = 15, l = 10, r = 10, unit = "pt")
   ) +
   # # to see outline of the plot and panel
   # theme(panel.border = element_rect(color = "red", fill = NA, linewidth = 1),
@@ -269,3 +273,6 @@ p2 +
 
 
 ggsave("../../../../../../Downloads/TEST1.png", width = 10, height = 8, scale = 1.25, dpi = 150, bg = "white")
+
+
+
