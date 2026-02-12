@@ -153,9 +153,7 @@ ui <- page_sidebar(
         )
       ),
       br(),
-      # ....................... TESTING ......................---------
       build_data_source_container_ui(id = "DEM_DATA_SOURCE"),
-      # ....................... TESTING ......................---------
       br()
     ),
     
@@ -281,9 +279,7 @@ ui <- page_sidebar(
       ),
       
       br(),
-      # ....................... TESTING ......................---------
       build_data_source_container_ui(id = "HSE_DATA_SOURCE"),
-      # ....................... TESTING ......................---------
     )
     # END of Tab Panels ----------------------------------------------------------
   )
@@ -477,6 +473,33 @@ server <- function(input, output, session) {
   ### ... Render indicator data source info 
   build_data_source_container_server("DEM_DATA_SOURCE", current_indicator_source)
   build_data_source_container_server("HSE_DATA_SOURCE", current_indicator_source)
+  
+  ### ··· Format data source for figures
+  current_indicator_source_fig <- reactive({
+    req(current_indicator_source())
+    
+    df <- current_indicator_source()
+    
+    if (nrow(df) > 1) {
+      my_data_source_list <- "<br><span style='color:white'>data:</span>- "
+    } else {
+      my_data_source_list <- ""
+    }
+    
+    source_fig <-
+      df %>%
+      mutate(source = paste0(my_data_source_list, source, ", ", data)) %>%
+      group_by(measure, indicator) %>%
+      summarise(source = str_flatten(unique(source), collapse = ";"),
+                date = format(max(as.Date(date_obtained, "%m/%d/%y")), "%B %d, %Y"),
+                year = as.integer(max(max_year)),
+                years = paste0(max(min_year), "-", max(max_year))
+      ) %>%
+      ungroup()
+    
+    return(source_fig)
+  })
+  
   
   # PLOT figures ---------------------------------------------------------------
   
