@@ -708,14 +708,14 @@ plot_pie_view <- function(DATA, LABELS = FALSE){
 
 
 ## > CARTESIAN plot for DOWNLOAD -----------------------------------------------------
-format_figs_download <- function(fig, fig_title_data, fig_source_data, fig_number) {
-  my_title <- fig_title_data()
+format_figs_download <- function(fig, fig_title, fig_source_data, figure_number) {
+  my_title <- fig_title() %>% filter(figure == figure_number) %>% pull(title)
   my_source <- fig_source_data()
   url <- "https:// iadatadrive.i2d2.iastate.edu"
   
   download_fig <- 
     fig +
-    labs(title = my_title$title[fig_number],
+    labs(title = my_title,
          # subtitle = "subtitle goes here",
          caption = sprintf(
            "<br>**Source:** I2D2, IA Data Drive, %s<br>**Data:** %s.<br>**Year:** %s<br>**Downloaded on:** %s",
@@ -723,7 +723,7 @@ format_figs_download <- function(fig, fig_title_data, fig_source_data, fig_numbe
          ),
          # tag = "Designed by Giorgi Chighladze",
          alt = "Iowa figures") +
-    annotation_custom(logo_grob_fixed) +   
+    annotation_custom(i2d2_logo_fixed) +   
     theme(
       plot.title = element_textbox_simple(size = 33, face = "bold", halign = 0.45, vjust = 0.5, lineheight = 1.5),
       plot.caption = element_markdown(size = 10, hjust = 0, margin = margin(l = 20), lineheight = 1.3),

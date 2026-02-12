@@ -4,43 +4,45 @@ library(bslib)
 library(bsicons)
 library(waiter)
 
-# format_map_download <- function(fig, fig_title_data, fig_source_data) {
-#   my_title <- fig_title_data()
+
+# # TESTING <<<<<<<<<<<<<<< -------------------------------------------------
+# i2d2_logo_fixed <- 
+#   magick::image_read("https://raw.githubusercontent.com/I2D2-Data-Team/IDD_Dashboard_App_Dev/main/common/www/I2D2_Logo_short.png") %>% 
+#   grid::rasterGrob(x = unit(0.98, "npc"), y = unit(-0.2, "npc"),
+#                    just = c("right", "bottom"), 
+#                    width = unit(2.2, "cm"))
+# 
+# 
+# 
+# format_figs_download <- function(fig, fig_title, fig_source_data, figure_number) {
+#   my_title <- fig_title() %>% filter(figure == figure_number) %>% pull(title)
 #   my_source <- fig_source_data()
 #   url <- "https:// iadatadrive.i2d2.iastate.edu"
 #   
 #   download_fig <- 
 #     fig +
-#     annotation_custom(grob = i2d2_logo,
-#                       xmin = -90.0, xmax = -90.65, 
-#                       ymin =  38.4, ymax =  41.2) +   
-#     labs(title = my_title$title[1],
+#     labs(title = my_title,
 #          # subtitle = "subtitle goes here",
 #          caption = sprintf(
-#            "**Source:** I2D2, IA Data Drive, %s<br>**Data:** %s.<br>**Year:** %s<br>**Downloaded on:** %s",
+#            "<br>**Source:** I2D2, IA Data Drive, %s<br>**Data:** %s.<br>**Year:** %s<br>**Downloaded on:** %s",
 #            url, my_source$source, my_source$year, my_source$date
 #          ),
-#          tag = "Developed by Giorgi Chighladze",
-#          alt = "Iowa heatmap") +
+#          # tag = "Designed by Giorgi Chighladze",
+#          alt = "Iowa figures") +
+#     annotation_custom(i2d2_logo_fixed) +   
 #     theme(
 #       plot.title = element_textbox_simple(size = 33, face = "bold", halign = 0.45, vjust = 0.5, lineheight = 1.5),
 #       plot.caption = element_markdown(size = 10, hjust = 0, margin = margin(l = 20), lineheight = 1.3),
 #       plot.tag.position = c(0.99, 0.19),
 #       plot.tag = element_text(hjust = 1, vjust = 1, size = 9, face = "bold.italic", color = "grey99"),
-#       plot.margin = margin(t = 5, b = 5, unit = "pt")
+#       plot.margin = margin(t = 15, b = 15, l = 10, r = 10, unit = "pt")
 #     ) +
-#     # align legend bar and its text and remove ticks
-#     guides(
-#       fill = guide_colorbar(
-#         barwidth = 20, 
-#         barheight = 1.2,
-#         label.theme = element_text(hjust = c(1.1, -0.1), vjust = 7, size = 20),
-#         ticks = FALSE)
-#     ) +
-#     coord_sf(clip = "off")
+#     coord_cartesian(clip = "off")
 #   
 #   return(download_fig)
-# }
+}
+# # TESTING <<<<<<<<<<<<<<< -------------------------------------------------
+
 
 
 # START UI ---------------------------------------------------------------------
@@ -74,8 +76,8 @@ ui <- page_sidebar(
              style="margin-left: 15px; font-size: 12px; color:#0097CD; white-space: normal; max-width: 185px;"),
     br(),
     strong("Adjust Map"),
-    shiny::checkboxInput('MAP_COUNTY_OUTLINES', "Show Outline of Selected Counties", value = TRUE),
-    shiny::checkboxInput('MAP_COUNTY_LABELS', "Show Names of Selected Counties", value = FALSE),
+    shiny::checkboxInput('MAP_COUNTY_OUTLINES', "Show Outline of Selected Locations", value = TRUE),
+    shiny::checkboxInput('MAP_COUNTY_LABELS', "Show Names of Selected Locations", value = FALSE),
     br(),
     strong("Adjust Figures"),
     checkboxInput(inputId = "ADD_STATEWIDE", label = "Include Statewide Data", value = TRUE),
@@ -493,7 +495,7 @@ server <- function(input, output, session) {
   output$HSE_FIG_NAME_2 <- compose_tooltip_language("GIO.fig2.tooltip", fig_titles, years = reactive(input$HSE_TREND_YEARS), fig = 2)
   output$HSE_FIG_NAME_3 <- compose_tooltip_language("GIO.fig3.tooltip", fig_titles, years = year_range.hse, fig = 3)
   output$HSE_FIG_NAME_3B <- compose_tooltip_language("GIO.fig3.tooltip", fig_titles, years = year_range.hse, fig = 3)
-  output$HSE_FIG_NAME_4B <- compose_tooltip_language("GIO.fig4.tooltip", fig_titles, years = reactive(input$HSE_TREND_YEARS), fig = 2) # assign fig = 2 to show year range
+  output$HSE_FIG_NAME_4B <- compose_tooltip_language("GIO.fig4.tooltip", fig_titles, years = reactive(input$HSE_TREND_YEARS), fig = 4) # assign fig = 2 to show year range
   
   ## > Create DATA SOURCE INFO -------------------------------------------------
   
@@ -512,31 +514,8 @@ server <- function(input, output, session) {
   build_data_source_container_server("HSE_DATA_SOURCE", current_indicator_source)
   
   ### ··· Format data source for figures
-  current_indicator_source_fig <- reactive({
-    req(current_indicator_source())
-    
-    df <- current_indicator_source()
-    
-    if (nrow(df) > 1) {
-      my_data_source_list <- "<br><span style='color:white'>data:</span>- "
-    } else {
-      my_data_source_list <- ""
-    }
-    
-    source_fig <-
-      df %>%
-      mutate(source = paste0(my_data_source_list, source, ", ", data)) %>%
-      group_by(measure, indicator) %>%
-      summarise(source = str_flatten(unique(source), collapse = ";"),
-                date = format(max(as.Date(date_obtained, "%m/%d/%y")), "%B %d, %Y"),
-                year = as.integer(max(max_year)),
-                years = paste0(max(min_year), "-", max(max_year))
-      ) %>%
-      ungroup()
-    
-    return(source_fig)
-  })
-  
+  current_indicator_source_fig <- get_current_indicator_source_fig("GIO.get.sources", current_indicator_source)
+
   
   # PLOT figures ---------------------------------------------------------------
   
@@ -628,12 +607,14 @@ server <- function(input, output, session) {
       mutate(fips = as.integer(fips)) %>%
       mutate(index = ifelse(index == -9999, NA_real_, index))
     return(data)
-  })
+  }) %>% debounce(100)
   
   ### ··· Plot map for selected DEM indicator
   map.dem <- reactive({
+    print("Step 1: creating DEM map")
     req(map_data.dem.subset(), base.map.geos(), list_selected.geos())
     req(nrow(map_data.dem.subset()) > 0)
+    print("Step 1: creating DEM map 2")
     plot_map_view(DATA = map_data.dem.subset(), 
                   BASE_MAP = base.map.geos(),
                   LOCATIONS = list_selected.geos(),
@@ -737,10 +718,11 @@ server <- function(input, output, session) {
       mutate(group_level = factor(group_level, levels = my_groups)) %>%
       mutate(index = ifelse(index == -9999, NA_real_, index))
     return(data)
-  })
+  }) %>% debounce(100)
   
   ### ··· Create trend line for selected DEM indicator
   line.dem <- reactive({
+    # print("Step 1: creating DEM trend")
     req(line_data.dem.subset(), current_indicator_type())
     req(nrow(line_data.dem.subset()) > 0)
     
@@ -750,6 +732,7 @@ server <- function(input, output, session) {
       my_groups <- subset.dem.rac
     }
     
+    # print("Step 1: creating DEM trend 2")
     plot_line_view(DATA = line_data.dem.subset(),
                    # DATA_TYPE =  current_indicator_type(),
                    DATA_TYPE =  input$DATA_TYPE,
@@ -770,17 +753,15 @@ server <- function(input, output, session) {
   
   ### ··· Download trend line for selected DEM indicator
   output$DEM_TREND_DOWNLOAD <- downloadHandler(
-    filename = "cip.png", #file_name(),
-    content = function(file){
+    filename = function() { paste0("IDD - ", fig_titles()$title[2], ".png") },
+    content  = function(file){
+      # Add source info to map and some styling
+      download_fig <-
+        format_figs_download(line.dem(), fig_titles, current_indicator_source_fig, 2)
+      # Set arguments for downloaded figure 
       ggsave(file, 
-             plot = line.dem() +
-               labs(title = paste(fig_titles()$title[2]),
-                    # subtitle = "subtitle goes here", caption = "this is caption", tag = "ECI Indicators from IDD",
-                    alt = "trend line") +
-               theme(
-                 plot.title = element_text(size = 20, face = "bold", hjust = 0.45, vjust = 0.5)
-               ), 
-             width = 10, height = 6, scale = 1.25, dpi = 150, bg = "white")
+             plot = download_fig,
+             width = 10, height = 8, scale = 1.25, dpi = 150, bg = "white")
     }
   )
   
@@ -850,17 +831,15 @@ server <- function(input, output, session) {
   
   ### ··· Download chart for selected DEM indicator
   output$DEM_BAR_DOWNLOAD <- downloadHandler(
-    filename = "cip.png", #file_name(),
-    content = function(file){
+    filename = function() { paste0("IDD - ", fig_titles()$title[3], ".png") },
+    content  = function(file){
+      # Add source info to map and some styling
+      download_fig <-
+        format_figs_download(bar.dem(), fig_titles, current_indicator_source_fig, 3)
+      # Set arguments for downloaded figure 
       ggsave(file, 
-             plot = bar.dem() +
-               labs(title = paste(fig_titles()$title[3]),
-                    # subtitle = "subtitle goes here", caption = "this is caption", tag = "ECI Indicators from IDD",
-                    alt = "bar chart") +
-               theme(
-                 plot.title = element_text(size = 20, face = "bold", hjust = 0.45, vjust = 0.5)
-               ), 
-             width = 12, height = 6, scale = 1.25, dpi = 150, bg = "white")
+             plot = download_fig,
+             width = 10, height = 8, scale = 1.25, dpi = 150, bg = "white")
     }
   )
   
@@ -971,7 +950,7 @@ server <- function(input, output, session) {
       mutate(fips = as.integer(fips)) %>%
       mutate(index = ifelse(index == -9999, NA_real_, index))
     return(data)
-  })
+  }) %>% debounce(100)
   
   ### ··· Plot map for selected HSE indicator
   map.hse <- reactive({
@@ -998,21 +977,14 @@ server <- function(input, output, session) {
   
   ### ··· Download map for selected HSE indicator
   output$HSE_MAP_DOWNLOAD <- downloadHandler(
-    filename = "cip.png", #file_name(),
-    content = function(file){
+    filename = function() { paste0("IDD - ", fig_titles()$title[1], ".png") },
+    content  = function(file){
+      # Add source info to map and some styling
+      download_fig <- 
+        format_map_download(map.hse(), fig_titles, current_indicator_source_fig)
+      # Set arguments for downloaded figure 
       ggsave(file, 
-             plot = map.hse() +
-               labs(title = paste(fig_titles()$title[1]),
-                    # subtitle = "subtitle goes here", caption = "this is caption", tag = "ECI Indicators from IDD",
-                    caption = sprintf(#"**Source:** IA Data Drive.\n**Data:** %s.\n**Year:** %s.\n**Downloaded on:** %s",
-                                      "**Source:** IA Data Drive.<br>**Data:** %s.<br>**Year:** %s.<br>**Downloaded on:** %s",
-                                      "INDICATOR_SOURCE", 2022,
-                                      format(Sys.Date(), "%B %d, %Y")),
-                    alt = "map") +
-               theme(
-                 plot.title = element_text(size = 20, face = "bold", hjust = 0.45, vjust = 0.5),
-                 plot.caption = element_markdown(size = 9, hjust = 0, margin = margin(l = 10), lineheight = 1)
-               ), 
+             plot = download_fig,
              width = 10, height = 8, scale = 1.25, dpi = 150, bg = "white")
     }
   )
@@ -1068,17 +1040,15 @@ server <- function(input, output, session) {
   
   ### ··· Download trend line for selected HSE indicator
   output$HSE_TREND_DOWNLOAD <- downloadHandler(
-    filename = "cip.png", #file_name(),
-    content = function(file){
+    filename = function() { paste0("IDD - ", fig_titles()$title[2], ".png") },
+    content  = function(file){
+      # Add source info to map and some styling
+      download_fig <-
+        format_figs_download(trend.hse(), fig_titles, current_indicator_source_fig, 2)
+      # Set arguments for downloaded figure 
       ggsave(file, 
-             plot = trend.hse() +
-               labs(title = paste(fig_titles()$title[2]),
-                    # subtitle = "subtitle goes here", caption = "this is caption", tag = "ECI Indicators from IDD",
-                    alt = "trend line") +
-               theme(
-                 plot.title = element_text(size = 20, face = "bold", hjust = 0.45, vjust = 0.5)
-               ), 
-             width = 10, height = 6, scale = 1.25, dpi = 150, bg = "white")
+             plot = download_fig,
+             width = 10, height = 8, scale = 1.25, dpi = 150, bg = "white")
     }
   )
   
@@ -1133,18 +1103,28 @@ server <- function(input, output, session) {
   
   ### ··· Download trend line for First Time Mother - fig 4
   output$HSE_FIG4B_DOWNLOAD <- downloadHandler(
-    filename = "cip.png", #file_name(),
-    content = function(file){
+    filename = function() { paste0("IDD - ", fig_titles()$title[4], ".png") },
+    content  = function(file){
+      # Add source info to map and some styling
+      download_fig <-
+        format_figs_download(trend.hse.ftm(), fig_titles, current_indicator_source_fig, 4)
+      # Set arguments for downloaded figure
       ggsave(file, 
-             plot = trend.hse.ftm() +
-               labs(title = paste(fig_titles()$title[4]),
-                    # subtitle = "subtitle goes here", caption = "this is caption", tag = "ECI Indicators from IDD",
-                    alt = "trend line") +
-               theme(
-                 plot.title = element_text(size = 20, face = "bold", hjust = 0.45, vjust = 0.5)
-               ), 
-             width = 10, height = 6, scale = 1.25, dpi = 150, bg = "white")
+             plot = download_fig,
+             width = 10, height = 8, scale = 1.25, dpi = 150, bg = "white")
     }
+    # 
+    # content = function(file){
+    #   ggsave(file, 
+    #          plot = trend.hse.ftm() +
+    #            labs(title = paste(fig_titles()$title[4]),
+    #                 # subtitle = "subtitle goes here", caption = "this is caption", tag = "ECI Indicators from IDD",
+    #                 alt = "trend line") +
+    #            theme(
+    #              plot.title = element_text(size = 20, face = "bold", hjust = 0.45, vjust = 0.5)
+    #            ), 
+    #          width = 10, height = 6, scale = 1.25, dpi = 150, bg = "white")
+    # }
   )
   
   
@@ -1265,18 +1245,28 @@ server <- function(input, output, session) {
   
   ### ··· Download chart for selected HSE indicator
   output$HSE_BAR_DOWNLOAD <- downloadHandler(
-    filename = "cip.png", #file_name(),
-    content = function(file){
+    filename = function() { paste0("IDD - ", fig_titles()$title[3], ".png") },
+    content  = function(file){
+      # Add source info to map and some styling
+      download_fig <-
+        format_figs_download(bar.hse(), fig_titles, current_indicator_source_fig, 3)
+      # Set arguments for downloaded figure
       ggsave(file, 
-             plot = bar.hse() +
-               labs(title = paste(fig_titles()$title[3]),
-                    # subtitle = "subtitle goes here", caption = "this is caption", tag = "ECI Indicators from IDD",
-                    alt = "bar chart") +
-               theme(
-                 plot.title = element_text(size = 20, face = "bold", hjust = 0.45, vjust = 0.5)
-               ), 
-             width = 12, height = 6, scale = 1.25, dpi = 150, bg = "white")
+             plot = download_fig,
+             width = 10, height = 8, scale = 1.25, dpi = 150, bg = "white")
     }
+    # 
+    # content = function(file){
+    #   ggsave(file, 
+    #          plot = bar.hse() +
+    #            labs(title = paste(fig_titles()$title[3]),
+    #                 # subtitle = "subtitle goes here", caption = "this is caption", tag = "ECI Indicators from IDD",
+    #                 alt = "bar chart") +
+    #            theme(
+    #              plot.title = element_text(size = 20, face = "bold", hjust = 0.45, vjust = 0.5)
+    #            ), 
+    #          width = 12, height = 6, scale = 1.25, dpi = 150, bg = "white")
+    # }
   )
   
   ### ··· Render bar chart for First Time Mother
@@ -1290,18 +1280,27 @@ server <- function(input, output, session) {
   
   ### ··· Download chart for selected HSE indicator
   output$HSE_FIG3B_DOWNLOAD <- downloadHandler(
-    filename = "cip.png", #file_name(),
-    content = function(file){
+    filename = function() { paste0("IDD - ", fig_titles()$title[3], ".png") },
+    content  = function(file){
+      # Add source info to map and some styling
+      download_fig <-
+        format_figs_download(bar.hse(), fig_titles, current_indicator_source_fig, 3)
+      # Set arguments for downloaded figure
       ggsave(file, 
-             plot = bar.hse() +
-               labs(title = paste(fig_titles()$title[3]),
-                    # subtitle = "subtitle goes here", caption = "this is caption", tag = "ECI Indicators from IDD",
-                    alt = "bar chart") +
-               theme(
-                 plot.title = element_text(size = 20, face = "bold", hjust = 0.45, vjust = 0.5)
-               ), 
-             width = 12, height = 6, scale = 1.25, dpi = 150, bg = "white")
+             plot = download_fig,
+             width = 10, height = 8, scale = 1.25, dpi = 150, bg = "white")
     }
+    # content = function(file){
+    #   ggsave(file, 
+    #          plot = bar.hse() +
+    #            labs(title = paste(fig_titles()$title[3]),
+    #                 # subtitle = "subtitle goes here", caption = "this is caption", tag = "ECI Indicators from IDD",
+    #                 alt = "bar chart") +
+    #            theme(
+    #              plot.title = element_text(size = 20, face = "bold", hjust = 0.45, vjust = 0.5)
+    #            ), 
+    #          width = 12, height = 6, scale = 1.25, dpi = 150, bg = "white")
+    # }
   )
 
   
