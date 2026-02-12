@@ -5,8 +5,8 @@
 * @giorgichi
 
 # The design team owns all CSS/SCSS files
+# *.scss  @org-name/design-team
 *.css   @giorgichi
-*.scss  @org-name/design-team
 
 # A specific dev owns the legal folder
 /legal/ @giorgichi
