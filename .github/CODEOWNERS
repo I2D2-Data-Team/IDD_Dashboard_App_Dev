@@ -1,0 +1,12 @@
+# This is a comment.
+# Each line is a file pattern followed by one or more owners.
+
+# Default owner for everything
+* @giorgichi
+
+# The design team owns all CSS/SCSS files
+*.css   @giorgichi
+*.scss  @org-name/design-team
+
+# A specific dev owns the legal folder
+/legal/ @giorgichi
