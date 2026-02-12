@@ -226,7 +226,7 @@ format_map_download <- function(fig, fig_title_data, fig_source_data) {
                       xmin = -90.0, xmax = -90.65, 
                       ymin =  38.4, ymax =  41.2) +   
     labs(title = my_title$title[1],
-         # subtitle = "subtitle goes here",
+         subtitle = " ",
          caption = sprintf(
            "**Source:** I2D2, IA Data Drive, %s<br>**Data:** %s.<br>**Year:** %s<br>**Downloaded on:** %s",
            url, my_source$source, my_source$year, my_source$date
@@ -716,7 +716,7 @@ format_figs_download <- function(fig, fig_title, fig_source_data, figure_number)
   download_fig <- 
     fig +
     labs(title = my_title,
-         # subtitle = "subtitle goes here",
+         subtitle = " ",
          caption = sprintf(
            "<br>**Source:** I2D2, IA Data Drive, %s<br>**Data:** %s.<br>**Year:** %s<br>**Downloaded on:** %s",
            url, my_source$source, my_source$year, my_source$date
