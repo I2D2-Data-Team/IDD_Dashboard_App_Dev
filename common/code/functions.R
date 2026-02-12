@@ -122,11 +122,6 @@ theme_view_map <-
         legend.key.width = unit(16, "mm"),
         legend.justification = c(0.45, 0.9),
         legend.text = element_text(size = 16, face = "bold")
-  ) +
-  # align legend bar and its text
-  guides(
-    fill = guide_colorbar(
-      label.theme = element_text(hjust = c(1.1, -0.1), vjust = 7))
   ) 
 
 # theme for trend lines
