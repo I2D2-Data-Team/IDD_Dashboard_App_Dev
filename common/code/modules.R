@@ -181,15 +181,16 @@ get_current_indicator_source_fig <- function(id, data) {
   moduleServer(id, function(input, output, session) {
     year.range <- reactive({
       req(data())
+      df <- data()
       # select special string for concatenating source when more than one source
-      if (nrow(data()) > 1) {
+      if (nrow(df) > 1) {
         my_data_source_list <- "<br><span style='color:white'>data:</span>- "
       } else {
         my_data_source_list <- ""
       }
       # generate a table with source info for figures
       sources <-
-        data() %>%
+        df %>%
         mutate(source = paste0(my_data_source_list, source, ", ", data)) %>%
         group_by(measure, indicator) %>%
         summarise(source = str_flatten(unique(source), collapse = ";"),
