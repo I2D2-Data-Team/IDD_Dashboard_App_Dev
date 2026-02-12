@@ -207,7 +207,7 @@ plot_map_view <- function(DATA, BASE_MAP, LOCATIONS,
 }
 
 
-## > MAP plot for VIEW ---------------------------------------------------------
+## > MAP plot for DOWNLOAD -----------------------------------------------------
 format_map_download <- function(fig, fig_title_data, fig_source_data) {
   my_title <- fig_title_data()
   my_source <- fig_source_data()
@@ -233,8 +233,14 @@ format_map_download <- function(fig, fig_title_data, fig_source_data) {
       plot.tag = element_text(hjust = 1, vjust = 1, size = 9, face = "bold.italic", color = "grey99"),
       plot.margin = margin(t = 5, b = 5, unit = "pt")
     ) +
-    # align legend bar and its text
-    guides(fill = guide_colorbar(barwidth = 20, barheight = 1.2)) +
+    # align legend bar and its text and remove ticks
+    guides(
+      fill = guide_colorbar(
+        barwidth = 20, 
+        barheight = 1.2,
+        label.theme = element_text(hjust = c(1.1, -0.1), vjust = 7, size = 20),
+        ticks = FALSE)
+    ) +
     coord_sf(clip = "off")
   
   return(download_fig)
