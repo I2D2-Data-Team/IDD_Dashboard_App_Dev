@@ -1,6 +1,12 @@
 # Read sf data for mapping State of Iowa
 ia_state_map <- read_rds("../common/data/map_IA-state.rds")
 
+# Load I2D2 logo for plots
+i2d2_logo <- 
+  magick::image_read("https://raw.githubusercontent.com/I2D2-Data-Team/IDD_Dashboard_App_Dev/main/common/www/I2D2_Logo_short.png") %>% 
+  grid::rasterGrob(interpolate = TRUE)
+
+
 # Function to Read Indicator Data Files ----------------------------------------
 if (is.na(Sys.getenv("SHINY_SERVER_VERSION", unset = NA))) {
   message("Reading data from local CyBox...")
@@ -115,8 +121,13 @@ theme_view_map <-
         legend.key.height = unit(4, "mm"),
         legend.key.width = unit(16, "mm"),
         legend.justification = c(0.45, 0.9),
-        legend.text = element_text(size = 16, face = "bold", hjust = 1.5, vjust = 7) # hjust = c(1.5, -0.5)
-  )
+        legend.text = element_text(size = 16, face = "bold")
+  ) +
+  # align legend bar and its text
+  guides(
+    fill = guide_colorbar(
+      label.theme = element_text(hjust = c(1.1, -0.1), vjust = 7))
+  ) 
 
 # theme for trend lines
 theme_view_trend <- 
