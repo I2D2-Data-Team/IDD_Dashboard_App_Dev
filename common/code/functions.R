@@ -6,6 +6,13 @@ i2d2_logo <-
   magick::image_read("https://raw.githubusercontent.com/I2D2-Data-Team/IDD_Dashboard_App_Dev/main/common/www/I2D2_Logo_short.png") %>% 
   grid::rasterGrob(interpolate = TRUE)
 
+# Make I2D2 logo with fixed size and position (for Cartesian figures)
+i2d2_logo_fixed <- 
+  magick::image_read("https://raw.githubusercontent.com/I2D2-Data-Team/IDD_Dashboard_App_Dev/main/common/www/I2D2_Logo_short.png") %>% 
+  grid::rasterGrob(x = unit(0.98, "npc"), y = unit(-0.2, "npc"),
+                   just = c("right", "bottom"), 
+                   width = unit(2.2, "cm"))
+
 
 # Function to Read Indicator Data Files ----------------------------------------
 if (is.na(Sys.getenv("SHINY_SERVER_VERSION", unset = NA))) {
@@ -224,14 +231,14 @@ format_map_download <- function(fig, fig_title_data, fig_source_data) {
            "**Source:** I2D2, IA Data Drive, %s<br>**Data:** %s.<br>**Year:** %s<br>**Downloaded on:** %s",
            url, my_source$source, my_source$year, my_source$date
          ),
-         tag = "Developed by Giorgi Chighladze",
+         # tag = "Designed by Giorgi Chighladze",
          alt = "Iowa heatmap") +
     theme(
       plot.title = element_textbox_simple(size = 33, face = "bold", halign = 0.45, vjust = 0.5, lineheight = 1.5),
       plot.caption = element_markdown(size = 10, hjust = 0, margin = margin(l = 20), lineheight = 1.3),
       plot.tag.position = c(0.99, 0.19),
       plot.tag = element_text(hjust = 1, vjust = 1, size = 9, face = "bold.italic", color = "grey99"),
-      plot.margin = margin(t = 5, b = 5, unit = "pt")
+      plot.margin = margin(t = 15, b = 15, l = 10, r = 10, unit = "pt")
     ) +
     # align legend bar and its text and remove ticks
     guides(
@@ -697,6 +704,36 @@ plot_pie_view <- function(DATA, LABELS = FALSE){
   }
   
   return(my_bar)
+}
+
+
+## > CARTESIAN plot for DOWNLOAD -----------------------------------------------------
+format_figs_download <- function(fig, fig_title_data, fig_source_data, fig_number) {
+  my_title <- fig_title_data()
+  my_source <- fig_source_data()
+  url <- "https:// iadatadrive.i2d2.iastate.edu"
+  
+  download_fig <- 
+    fig +
+    labs(title = my_title$title[fig_number],
+         # subtitle = "subtitle goes here",
+         caption = sprintf(
+           "<br>**Source:** I2D2, IA Data Drive, %s<br>**Data:** %s.<br>**Year:** %s<br>**Downloaded on:** %s",
+           url, my_source$source, my_source$year, my_source$date
+         ),
+         # tag = "Designed by Giorgi Chighladze",
+         alt = "Iowa figures") +
+    annotation_custom(logo_grob_fixed) +   
+    theme(
+      plot.title = element_textbox_simple(size = 33, face = "bold", halign = 0.45, vjust = 0.5, lineheight = 1.5),
+      plot.caption = element_markdown(size = 10, hjust = 0, margin = margin(l = 20), lineheight = 1.3),
+      plot.tag.position = c(0.99, 0.19),
+      plot.tag = element_text(hjust = 1, vjust = 1, size = 9, face = "bold.italic", color = "grey99"),
+      plot.margin = margin(t = 15, b = 15, l = 10, r = 10, unit = "pt")
+    ) +
+    coord_cartesian(clip = "off")
+  
+  return(download_fig)
 }
 
 
