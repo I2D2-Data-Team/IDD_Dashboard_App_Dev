@@ -4,6 +4,43 @@ library(bslib)
 library(bsicons)
 library(waiter)
 
+# format_map_download <- function(fig, fig_title_data, fig_source_data) {
+#   my_title <- fig_title_data()
+#   my_source <- fig_source_data()
+#   url <- "https:// iadatadrive.i2d2.iastate.edu"
+#   
+#   download_fig <- 
+#     fig +
+#     annotation_custom(grob = i2d2_logo,
+#                       xmin = -90.0, xmax = -90.65, 
+#                       ymin =  38.4, ymax =  41.2) +   
+#     labs(title = my_title$title[1],
+#          # subtitle = "subtitle goes here",
+#          caption = sprintf(
+#            "**Source:** I2D2, IA Data Drive, %s<br>**Data:** %s.<br>**Year:** %s<br>**Downloaded on:** %s",
+#            url, my_source$source, my_source$year, my_source$date
+#          ),
+#          tag = "Developed by Giorgi Chighladze",
+#          alt = "Iowa heatmap") +
+#     theme(
+#       plot.title = element_textbox_simple(size = 33, face = "bold", halign = 0.45, vjust = 0.5, lineheight = 1.5),
+#       plot.caption = element_markdown(size = 10, hjust = 0, margin = margin(l = 20), lineheight = 1.3),
+#       plot.tag.position = c(0.99, 0.19),
+#       plot.tag = element_text(hjust = 1, vjust = 1, size = 9, face = "bold.italic", color = "grey99"),
+#       plot.margin = margin(t = 5, b = 5, unit = "pt")
+#     ) +
+#     # align legend bar and its text and remove ticks
+#     guides(
+#       fill = guide_colorbar(
+#         barwidth = 20, 
+#         barheight = 1.2,
+#         label.theme = element_text(hjust = c(1.1, -0.1), vjust = 7, size = 20),
+#         ticks = FALSE)
+#     ) +
+#     coord_sf(clip = "off")
+#   
+#   return(download_fig)
+# }
 
 
 # START UI ---------------------------------------------------------------------
@@ -608,6 +645,7 @@ server <- function(input, output, session) {
   
   ### ··· Render map for selected DEM indicator
   output$DEM_MAP <- renderPlot({
+    # print("Step 2: rendering DEM map")
     map.dem()
   },
   alt = reactive({
@@ -617,21 +655,14 @@ server <- function(input, output, session) {
   
   ### ··· Download map for selected DEM indicator
   output$DEM_MAP_DOWNLOAD <- downloadHandler(
-    filename = "cip.png", #file_name(),
-    content = function(file){
+    filename = function() { paste0("IDD - ", fig_titles()$title[1], ".png") },
+    content  = function(file){
+      # Add source info to map and some styling
+      download_fig <- 
+        format_map_download(map.dem(), fig_titles, current_indicator_source_fig)
+      # Set arguments for downloaded figure 
       ggsave(file, 
-             plot = map.dem() +
-               labs(title = paste(fig_titles()$title[1]),
-                    # subtitle = "subtitle goes here", caption = "this is caption", tag = "ECI Indicators from IDD",
-                    caption = sprintf(#"**Source:** IA Data Drive.\n**Data:** %s.\n**Year:** %s.\n**Downloaded on:** %s",
-                      "**Source:** IA Data Drive.<br>**Data:** %s.<br>**Year:** %s.<br>**Downloaded on:** %s",
-                      "INDICATOR_SOURCE", 2022,
-                      format(Sys.Date(), "%B %d, %Y")),
-                    alt = "map") +
-               theme(
-                 plot.title = element_text(size = 20, face = "bold", hjust = 0.45, vjust = 0.5),
-                 plot.caption = element_markdown(size = 9, hjust = 0, margin = margin(l = 10), lineheight = 1)
-               ), 
+             plot = download_fig,
              width = 10, height = 8, scale = 1.25, dpi = 150, bg = "white")
     }
   )
@@ -1285,7 +1316,7 @@ server <- function(input, output, session) {
   #   # nrow(map_data.hse.subset())
   # })
   # output$TABLE1 <- renderTable({
-  #   current_indicator_source()
+  #   current_indicator_source_fig()
   #   # bar_data.hse.subset() %>% head(7)
   # })
  
@@ -1293,7 +1324,7 @@ server <- function(input, output, session) {
   #   "Data raw filtered by FIPS and YEAR"
   # })
   # output$TABLE2 <- renderTable({
-  #   fig_titles() 
+  #   fig_titles()
   #   # data.hse.group() %>% filter(fips < 19003, year > 2022) %>% head(5)
   # })
 
