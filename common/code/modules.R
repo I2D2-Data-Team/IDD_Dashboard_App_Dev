@@ -175,3 +175,30 @@ build_data_source_container_server <- function(id, metadata) {
   )
 }
 
+
+# Get data source info for indicators ------------------------------------------
+get_current_indicator_source_fig <- function(id, data) {
+  moduleServer(id, function(input, output, session) {
+    year.range <- reactive({
+      req(data())
+      # select special string for concatenating source when more than one source
+      if (nrow(data()) > 1) {
+        my_data_source_list <- "<br><span style='color:white'>data:</span>- "
+      } else {
+        my_data_source_list <- ""
+      }
+      # generate a table with source info for figures
+      sources <-
+        data() %>%
+        mutate(source = paste0(my_data_source_list, source, ", ", data)) %>%
+        group_by(measure, indicator) %>%
+        summarise(source = str_flatten(unique(source), collapse = ";"),
+                  date = format(max(as.Date(date_obtained, "%m/%d/%y")), "%B %d, %Y"),
+                  year = as.integer(max(max_year)),
+                  years = paste0(max(min_year), "-", max(max_year))
+        ) %>%
+        ungroup()
+      return(sources)
+    })
+  })
+}
