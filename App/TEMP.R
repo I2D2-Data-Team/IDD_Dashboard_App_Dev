@@ -25,7 +25,7 @@ dim_dir <- "Demographic"
 
 
 # i2d2_image <- magick::image_read("../common/Code/www/I2D2_Logo_short.png") %>% grid::rasterGrob(interpolate = TRUE)
-i2d2_logo <- magick::image_read("https://raw.githubusercontent.com/I2D2-Data-Team/IDD_Dashboard_App_Dev/main/common/www/I2D2_Logo_short.png") %>% grid::rasterGrob(interpolate = TRUE)
+# i2d2_logo <- magick::image_read("https://raw.githubusercontent.com/I2D2-Data-Team/IDD_Dashboard_App_Dev/main/common/www/I2D2_Logo_short.png") %>% grid::rasterGrob(interpolate = TRUE)
 data.county.dem.age.1 <- read_my_csv(dim_dir, "IA-county", "dem_age_fig1_2_3")
 ia_county_map <- read_rds("../common/Data/map_IA-county.rds")
 # fig_titles <- metadata.fig.titles %>% filter(indicator == "Child Age", figure == 1)
@@ -182,3 +182,90 @@ ggsave("../../../../../../Downloads/TEST1.png", width = 10, height = 8, scale = 
 #     )
 #   )
 # ),
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## OTHER FIGURES --------------------------------------------------------------------
+data.county.dem.age.1 <- read_my_csv(dim_dir, "IA-county", "dem_age_fig1_2_3")
+# fig_titles <- metadata.fig.titles %>% filter(indicator == "Child Age", figure == 1)
+url <- "https:// iadatadrive.i2d2.iastate.edu"
+my_df <- 
+  metadata.fig.sources %>%
+  filter(indicator == "Child Age")
+
+if (nrow(my_df) > 1) {
+  my_data_source_list <- "<br><span style='color:white'>data:</span>- "
+} else {
+  my_data_source_list <- ""
+}
+
+fig_titles <-
+  my_df %>%
+  mutate(data = "Table C09001", source = "CENSUS") %>%
+  bind_rows(my_df) %>%
+  mutate(source = paste0(my_data_source_list, source, ", ", data)) %>%
+  group_by(measure, indicator) %>%
+  summarise(source = str_flatten(unique(source), collapse = ";"),
+            date = format(max(as.Date(date_obtained, "%m/%d/%y")), "%B %d, %Y"),
+            year = max(max_year),
+            years = paste0(max(min_year), "-", max(max_year))
+  ) %>%
+  ungroup()
+
+# Start plotting line chart
+p2 <- 
+  data.county.dem.age.1 %>%
+  filter(fips == 19, group_level == "none") %>% 
+  mutate(group_level = subset_level,
+         group_level = factor(group_level, levels = subset.dem.age),
+         index = ifelse(index == -9999, NA_real_, index)) %>%
+  plot_line_view()
+
+
+# theme for output map DOWNLOAD
+logo_grob_fixed <- 
+  magick::image_read("https://raw.githubusercontent.com/I2D2-Data-Team/IDD_Dashboard_App_Dev/main/common/www/I2D2_Logo_short.png") %>% 
+  grid::rasterGrob(x = unit(0.98, "npc"), y = unit(-0.2, "npc"),
+                   just = c("right", "bottom"), 
+                   width = unit(2.2, "cm"))
+
+p2 + 
+  labs(title = paste(fig_titles$measure, fig_titles$indicator),
+       # subtitle = "subtitle goes here",
+       caption = sprintf(
+         "<br>**Source:** I2D2, IA Data Drive, %s<br>**Data:** %s.<br>**Year:** %s<br>**Downloaded on:** %s",
+         url, fig_titles$source, fig_titles$year, fig_titles$date),
+       tag = "Developed by Giorgi Chighladze",
+       alt = "Figure") +
+  annotation_custom(logo_grob_fixed) +
+  theme(
+    plot.title = element_textbox_simple(size = 33, face = "bold", halign = 0.45, vjust = 0.5, lineheight = 1.5),
+    plot.caption = element_markdown(size = 10, hjust = 0, margin = margin(l = 20), lineheight = 1.3),
+    plot.tag.position = c(0.99, 0.19),
+    plot.tag = element_text(hjust = 1, vjust = 1, size = 9, face = "bold.italic", color = "grey99"),
+    plot.margin = margin(t = 5, b = 5, unit = "pt")
+  ) +
+  # # to see outline of the plot and panel
+  # theme(panel.border = element_rect(color = "red", fill = NA, linewidth = 1),
+  #       plot.background = element_rect(color = "blue", fill = NA, linewidth = 1)) +
+  coord_cartesian(clip = "off")
+
+
+ggsave("../../../../../../Downloads/TEST1.png", width = 10, height = 8, scale = 1.25, dpi = 150, bg = "white")
