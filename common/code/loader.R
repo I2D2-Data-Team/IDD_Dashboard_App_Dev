@@ -15,7 +15,6 @@ library(purrr)
 # library(tidyr)
 library(ggrepel)
 library(ggtext)
-library(magick)
 library(sf)
 
 
