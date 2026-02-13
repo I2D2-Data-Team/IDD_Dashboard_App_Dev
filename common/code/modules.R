@@ -131,11 +131,11 @@ build_data_source_container_ui <- function(id) {
       wellPanel(
         h3(strong("Data")),
         tags$hr(style = "margin: 0; padding: 0; height: 10px; border-top: 2px solid;"),
-        uiOutput(ns("display_info")),
-        p("For additional info, see the ", 
-          a("IA Data Drive Manual", 
-            href = "https://i2d2.iastate.edu/wp-content/uploads/2025/04/IA-Data-Drive-Manual-v3.3.pdf",
-            target = "_blank", rel = "noopener noreferrer"))
+        uiOutput(ns("display_info"))#,
+        # p("For additional info, see the ", 
+        #   a("IA Data Drive Manual", 
+        #     href = "https://i2d2.iastate.edu/wp-content/uploads/2025/04/IA-Data-Drive-Manual-v3.3.pdf",
+        #     target = "_blank", rel = "noopener noreferrer"))
       )
     )
   )
