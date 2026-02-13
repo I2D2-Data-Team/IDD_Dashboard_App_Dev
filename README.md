@@ -1,5 +1,6 @@
 # IDD_App_Dev
 Developing and testing IDD dashboard elements.
 
-This should work now.
-More updateds.
+
+## Styling 
+- [App Styling](App/Docs/styling.md)
