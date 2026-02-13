@@ -1,6 +1,3 @@
-# run local version of code
-check.this.to.run.local <- "Y"
-
 # source("../common/code/loader.R")
 source("https://raw.githubusercontent.com/I2D2-Data-Team/IDD_Dashboard_App_Dev/refs/heads/main/common/code/loader.R")
 

@@ -20,11 +20,15 @@ library(sf)
 
 # Load R scripts ---------------------------------------------------------------
 
-if (Sys.getenv("USERNAME") == "gio" & exists("check.this.to.run.local")) {
-  print(cat("Reading code from local dir"))
+# Use system2() to capture command output into an R variable
+# 'stdout' argument is set to TRUE to capture the standard output
+current_branch <- system2("git", args = c("rev-parse", "--abbrev-ref", "HEAD"), stdout = TRUE)
+
+if (Sys.getenv("USERNAME") == "gio" && current_branch != "main") {
+  cat("Reading code from local directory.\n")
   common.function.path <- ".."
 } else {
-  print(cat("Reading code from remote dir"))
+  cat("You are on main branch! Reading code from github.\n")
   common.function.path <- "https://raw.githubusercontent.com/I2D2-Data-Team/IDD_Dashboard_App_Dev/refs/heads/main"
 }
 
