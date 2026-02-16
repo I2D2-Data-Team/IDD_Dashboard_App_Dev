@@ -1,5 +1,5 @@
 # This code cleans the tooltip data and prepares for use by IDD
-
+library(tidyverse)
 
 
 # Save a Clean Version of Tooltip -----------------------------------------
@@ -12,7 +12,9 @@ metadata.fig.titles <-
          den_source = paste0("(", den_source, ")"))
 
 # Read tooltip data from Jamy
-tooltip <- read_csv("data/tooltip.csv", col_types = cols(.default = "c")) %>% 
+tooltip <- 
+  # read_csv("data/tooltip.csv", col_types = cols(.default = "c")) %>% 
+  read_csv("C://Users/gio/Box/Iowa IDS/Projects/_IA Data Drive/Indicators/I2D2 Data/ACS INDICATORS/Indicators_GioUpload/tooltip.csv", col_types = cols(.default = "c")) %>% 
   janitor::remove_empty(which = "cols") %>%
   janitor::clean_names() %>%
   rename(subsets = subset_if_diff) 
@@ -58,6 +60,7 @@ tooltip_new %>%
   rename(tool_tip_text = tool_tip_desc) %>%
   select(id, everything()) %>%
   write_csv("../common/data/idd_tooltip.csv")
+# read_csv("../common/data/idd_tooltip.csv")
 
 
 # Save a Clean Version of Data Source -------------------------------------
