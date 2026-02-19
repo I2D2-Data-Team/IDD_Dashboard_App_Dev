@@ -388,13 +388,16 @@ plot_bar_view <- function(DATA, DATA_TYPE = "percent", LOCATIONS,
     Y_ACCURACY <- 1
   }
   
+  # set additional space above the bars 
+  my_sab <- 1.25
+  
   # define max limit for Y axis
   if (DATA_TYPE == "percent") {
-    Y_MAX <- ceiling(my_max_value * 100 * 1.15) / 100
+    Y_MAX <- ceiling(my_max_value * 100 * my_sab) / 100
     # fix max values to 5% if all values are suppressed or absence
     if (Y_MAX == 0) Y_MAX <- 0.05
   } else {
-    Y_MAX <- ceiling(my_max_value * 1.15/10) * 10 
+    Y_MAX <- ceiling(my_max_value * my_sab/10) * 10 
     # fix max values to 5 if all values are suppressed or absence
     if (Y_MAX == 0) Y_MAX <- 5
   }
@@ -423,12 +426,14 @@ plot_bar_view <- function(DATA, DATA_TYPE = "percent", LOCATIONS,
       my_bar <- 
         my_bar +
         geom_text(aes(label = scales::percent(index, accuracy = .1)),
-                  size = 4, vjust = -1, position = position_dodge(width = my_sbg))
+                  size = 4, vjust = 0.5, hjust = -0.2, angle = 90, #vjust = -1, 
+                  position = position_dodge(width = my_sbg))
     } else {
       my_bar <- 
         my_bar +
         geom_text(aes(label = scales::comma(index, accuracy = 1)),
-                  size = 4, vjust = -1, position = position_dodge(width = my_sbg))
+                  size = 4, vjust = 0.5, hjust = -0.2, angle = 90, #vjust = -1, 
+                  position = position_dodge(width = my_sbg))
     }
   } 
   
@@ -484,13 +489,16 @@ plot_bar_view2 <- function(DATA, DATA_TYPE = "percent", LOCATIONS,
     Y_ACCURACY <- 1
   }
   
+  # set additional space above the bars 
+  my_sab <- 1.25
+  
   # define max limit for Y axis
   if (DATA_TYPE == "percent") {
-    Y_MAX <- ceiling(my_max_value * 100 * 1.15) / 100
+    Y_MAX <- ceiling(my_max_value * 100 * my_sab) / 100
     # fix max values to 5% if all values are suppressed or absence
     if (Y_MAX == 0) Y_MAX <- 0.05
   } else {
-    Y_MAX <- ceiling(my_max_value * 1.15/10) * 10 
+    Y_MAX <- ceiling(my_max_value * my_sab/10) * 10 
     # fix max values to 5 if all values are suppressed or absence
     if (Y_MAX == 0) Y_MAX <- 5
   }
@@ -519,12 +527,14 @@ plot_bar_view2 <- function(DATA, DATA_TYPE = "percent", LOCATIONS,
       my_bar <- 
         my_bar +
         geom_text(aes(label = scales::percent(index, accuracy = .1)),
-                  size = 4, vjust = -1, position = position_dodge(width = my_sbg))
+                  size = 4, vjust = 0.5, hjust = -0.2, angle = 90, #vjust = -1, 
+                  position = position_dodge(width = my_sbg))
     } else {
       my_bar <- 
         my_bar +
         geom_text(aes(label = scales::comma(index, accuracy = 1)),
-                  size = 4, vjust = -1, position = position_dodge(width = my_sbg))
+                  size = 4, vjust = 0.5, hjust = -0.2, angle = 90, #vjust = -1, 
+                  position = position_dodge(width = my_sbg))
     }
   } 
   
@@ -578,13 +588,16 @@ plot_bar_stacked_view <- function(DATA, DATA_TYPE = "percent",
     Y_ACCURACY <- 1
   }
   
+  # set additional space above the bars 
+  my_sab <- 1.25
+  
   # define max limit for Y axis
   if (DATA_TYPE == "percent") {
-    Y_MAX <- ceiling(my_max_value * 100 * 1.15) / 100
+    Y_MAX <- ceiling(my_max_value * 100 * my_sab) / 100
     # fix max values to 5% if all values are suppressed or absence
     if (Y_MAX == 0) Y_MAX <- 0.05
   } else {
-    Y_MAX <- ceiling(my_max_value * 1.15/10) * 10 
+    Y_MAX <- ceiling(my_max_value * my_sab/10) * 10 
     # fix max values to 5 if all values are suppressed or absence
     if (Y_MAX == 0) Y_MAX <- 5
   }
@@ -611,12 +624,14 @@ plot_bar_stacked_view <- function(DATA, DATA_TYPE = "percent",
       my_bar <- 
         my_bar +
         geom_text(aes(label = scales::percent(index, accuracy = .1)),
-                  size = 4, position = position_stack(vjust = 0.5, reverse = TRUE))
+                  size = 4, 
+                  position = position_stack(vjust = 0.5, reverse = TRUE))
     } else {
       my_bar <- 
         my_bar +
         geom_text(aes(label = scales::comma(index, accuracy = 1)),
-                  size = 4, position = position_stack(vjust = 0.5, reverse = TRUE))
+                  size = 4, 
+                  position = position_stack(vjust = 0.5, reverse = TRUE))
     }
   } 
   
