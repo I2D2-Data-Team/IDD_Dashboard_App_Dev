@@ -32,6 +32,15 @@ subset.hse.tch <- c("Computing Device", "Internet Access")
 subset.hse.trn <- c("Drove Alone", "Carpooled", "Public Transportation", "Walked", "Other", "Not Applicable")
 subset.sch.wrk <- c("none")
 
+subset.rsk.btm <- c("none")
+subset.rsk.bum <- c("none")
+subset.rsk.ipc <- c("none")
+subset.rsk.lme <- c("none")
+subset.rsk.mow <- c("WIC or Medicaid", "Medicaid Cover Only", "WIC Receipt Only")
+subset.rsk.plw <- c("Both", "Low Birth Weight", "Preterm")
+subset.rsk.pte <- c("none")
+subset.rsk.cum <- c("0 Risk", "1 Risk", "2 or More Risks", "3 or More Risks")
+
 
 # Set groups for indicator
 group.hse.typ      <- c("0-5", "0-2", "3-4", "5")
@@ -39,6 +48,15 @@ group.hse.lng      <- c("< 100% FPL", "≥ 100% FPL")
 group.hse.tch.cmp  <- c("Computer Only", "Mobile Device Only", "Both Computer and Mobile Device", "None")
 group.hse.tch.int  <- c("Dial-up", "Broadband", "Cellular Data Plan", "Broadband and Cellular", "No Internet")
 group.hse.trn      <- c("< 100% FPL", "100% - 149% FPL", "≥ 150% FPL")
+
+group.rsk.btm <- c("White", "Black", "Asian", "Other", "Hispanic")
+group.rsk.bum <- c("White", "Black", "Asian", "Other", "Hispanic")
+group.rsk.ipc <- c("White", "Black", "Asian", "Other", "Hispanic")
+group.rsk.lme <- c("White", "Black", "Asian", "Other", "Hispanic")
+group.rsk.mow <- c("White", "Black", "Asian", "Other", "Hispanic")
+group.rsk.plw <- c("White", "Black", "Asian", "Other", "Hispanic")
+group.rsk.pte <- c("White", "Black", "Asian", "Other", "Hispanic")
+group.rsk.cum <- c("White", "Black", "Asian", "Other", "Hispanic")
 
 
 # # Read county data to check SUBSET and GROUP levels

@@ -196,6 +196,117 @@ ui <- page_sidebar(
       br()
     ),
     
+    ## .. Birth Risk UI --------------------------------------------------------
+    
+    nav_panel(
+      title = "Birth Risks",
+      fluidRow(
+        column(
+          width = 8,
+          fluidRow(
+            column(
+              width = 6,
+              selectInput(
+                inputId = "RSK_INDICATOR", 
+                label = strong("Indicator"),
+                choices = c(
+                  "Birth to Teenage Mother",
+                  # "Birth to Unmarried Mother",
+                  # "Inadequate Prenatal Care",
+                  # "Low Maternal Education at Birth",
+                  # "Medicaid or WIC Receipt at Birth",
+                  # "Preterm or Low Birth Weight",
+                  # "Prenatal Tobacco Exposure",
+                  "Cumulative Birth Risks"
+                ), 
+                width = "100%"
+              )
+            ),
+            column(
+              width = 4,
+              selectInput(
+                inputId = "RSK_SUBSET", 
+                label = strong("Subset"),
+                choices = c(""), 
+                width = "100%"
+              )
+            )
+          )
+        )
+      ),
+      br(),
+      # bottom section for displaying data
+      fluidRow(
+        column(
+          width = 6, 
+          uiOutput("RSK_FIG_NAME_1"),
+          withWaiter(
+            shiny::plotOutput("RSK_MAP"),
+            html = spin_3k(), color = "white"
+          ),
+          p("Select Colors"),
+          # select color palette
+          selectInput(
+            inputId = "RSK_MAP_COL",
+            label = NULL, #"Chose Color Palette for Map",
+            choices = map_color_choices
+          ),
+          shiny::downloadButton("RSK_MAP_DOWNLOAD", label = "Download the Map")
+        ), 
+        column(
+          width = 6, 
+          uiOutput("RSK_FIG_NAME_2"),
+          withWaiter(
+            shiny::plotOutput("RSK_TREND"),
+            html = spin_3k(), color = "white"
+          ),
+          p("Select Years"),
+          shiny::sliderInput("RSK_TREND_YEARS", label = NULL, 
+                             min = 2020,
+                             max = 2024,
+                             value = c(2020, 2024),
+                             step = 1,
+                             sep = "",
+                             ticks = FALSE,
+                             width = '50%'),
+          shiny::downloadButton("RSK_TREND_DOWNLOAD", label = "Download the Trend Line")
+        )
+      ),
+      br(),
+      fluidRow(
+        column(
+          width = 6,
+          uiOutput("RSK_FIG_NAME_3"),
+          shiny::plotOutput("RSK_BAR"),
+          shiny::downloadButton("RSK_BAR_DOWNLOAD", label = "Download the Bar Chart")
+        ),
+        column(
+          width = 6,
+          uiOutput("RSK_FIG_NAME_4"),
+          shiny::plotOutput("RSK_LINE"),
+          shiny::downloadButton("RSK_LINE_DOWNLOAD", label = "Download the Line Chart")
+        )
+      ),
+      br(),
+      conditionalPanel(
+        condition = "input.RSK_INDICATOR == 'Cumulative Birth Risks'",
+        fluidRow(
+          column(
+            width = 6,
+            uiOutput("RSK_FIG_NAME_5"),
+            shiny::plotOutput("RSK_BAR_STACKED"),
+            shiny::downloadButton("RSK_BAR_STACKED_DOWNLOAD", label = "Download the Bar Chart")
+          ),
+          column(
+            width = 6,
+            uiOutput("RSK_FIG_NAME_6"),
+            shiny::plotOutput("RSK_PIE"),
+            shiny::downloadButton("RSK_PIE_DOWNLOAD", label = "Download the Pie Chart")
+          ) 
+        )
+      )
+    ),
+    
     ## .. Household Characteristics UI -----------------------------------------
     
     nav_panel(
@@ -211,11 +322,11 @@ ui <- page_sidebar(
                 label = strong("Indicator"),
                 choices = c(
                   "Household Type",
-                  "Working Parents",
-                  "First Time Mother",
+                  # "Working Parents",
+                  # "First Time Mother",
                   "Language Spoken at Home",
                   "Technology Access",
-                  "Transportation",
+                  # "Transportation",
                   "Work Schedules"
                 ), 
                 width = "100%"
@@ -421,6 +532,35 @@ server <- function(input, output, session) {
       )
     }
   })
+  
+  ### ··· Update RSK SUBSET drop-down selection choices ------------------------
+  observeEvent(input$RSK_INDICATOR, {
+    if (input$RSK_INDICATOR == "Birth to Teenage Mother") {
+      my_choices <- subset.rsk.btm
+    } else if (input$RSK_INDICATOR == "Birth to Unmarried Mother") {
+      my_choices <- subset.rsk.bum
+    } else if (input$RSK_INDICATOR == "Inadequate Prenatal Care") {
+      my_choices <- subset.rsk.ipc
+    } else if (input$RSK_INDICATOR == "Low Maternal Education at Birth") {
+      my_choices <- subset.rsk.lme
+    } else if (input$RSK_INDICATOR == "Medicaid or WIC Receipt at Birth") {
+      my_choices <- subset.rsk.mow
+    } else if (input$RSK_INDICATOR == "Preterm or Low Birth Weight") {
+      my_choices <- subset.rsk.plw
+    } else if (input$RSK_INDICATOR == "Prenatal Tobacco Exposure") {
+      my_choices <- subset.rsk.pte
+    } else if (input$RSK_INDICATOR == "Cumulative Birth Risks") {
+      my_choices <- subset.rsk.cum
+    } else {
+      my_choices <- "none"
+    }
+    updateSelectInput(
+      session = session,
+      inputId = "RSK_SUBSET",
+      choices = my_choices
+    )
+  })
+  
 
   
   ## > Update TREND LINE SLIDER for Year-Range ---------------------------------
@@ -430,6 +570,9 @@ server <- function(input, output, session) {
   
   ### ··· Get YEAR-RANGE for selected HSE indicator ----------------------------
   year_range.hse <- get_year_range_server("GIO.years.hse", reactive(input$HSE_INDICATOR), data.hse)
+  
+  ### ··· Get YEAR-RANGE for selected RSK indicator ----------------------------
+  year_range.rsk <- get_year_range_server("GIO.years.rsk", reactive(input$RSK_INDICATOR), data.rsk)
   
   ### ··· Update year-range for DEM SLIDER -------------------------------------
   observeEvent(year_range.dem(), {
@@ -447,24 +590,46 @@ server <- function(input, output, session) {
                       value = select_my_year_range(year_range.hse(), 5))
   })
   
+  ### ··· Update year-range for RSK SLIDER -------------------------------------
+  observeEvent(year_range.rsk(), {
+    updateSliderInput(session, "RSK_TREND_YEARS",
+                      min = year_range.rsk()[[1]],
+                      max = year_range.rsk()[[2]],
+                      value = select_my_year_range(year_range.rsk(), 5))
+  })
+  
   
   ## > Update FIGURE TITLES ----------------------------------------------------
   ### ··· Get name of active indicator 
   current_indicator <- reactive({
     req(input$MEASURE)
     switch(input$MEASURE,
+           "Birth Risks" = input$RSK_INDICATOR,
            "Child Demographics" = input$DEM_INDICATOR,
            "Household Characteristics" = input$HSE_INDICATOR)
   })
   
   ### ··· Get data type of active indicator 
+  # current_indicator_type <- reactive({
+  #   req(current_indicator())
+  #   type <-
+  #     metadata.fig.types %>%
+  #     filter(measure == input$MEASURE,
+  #            indicator == current_indicator()) %>%
+  #     pull(data_type)
+  #   return(type)
+  # })
   current_indicator_type <- reactive({
     req(current_indicator())
+    req(input$DATA_TYPE)
     type <-
       metadata.fig.types %>%
       filter(measure == input$MEASURE,
              indicator == current_indicator()) %>%
       pull(data_type)
+    if (input$DATA_TYPE == 'count') {
+      type <- "count"
+    }
     return(type)
   })
   
@@ -496,6 +661,12 @@ server <- function(input, output, session) {
   output$HSE_FIG_NAME_3 <- compose_tooltip_language("GIO.fig3.tooltip", fig_titles, years = year_range.hse, fig = 3)
   output$HSE_FIG_NAME_3B <- compose_tooltip_language("GIO.fig3.tooltip", fig_titles, years = year_range.hse, fig = 3)
   output$HSE_FIG_NAME_4B <- compose_tooltip_language("GIO.fig4.tooltip", fig_titles, years = reactive(input$HSE_TREND_YEARS), fig = 4) # assign fig = 2 to show year range
+  output$RSK_FIG_NAME_1   <- compose_tooltip_language("GIO.fig1.tooltip", fig_titles, years = year_range.rsk, fig = 1)
+  output$RSK_FIG_NAME_2   <- compose_tooltip_language("GIO.fig2.tooltip", fig_titles, years = reactive(input$RSK_TREND_YEARS), fig = 2)
+  output$RSK_FIG_NAME_3   <- compose_tooltip_language("GIO.fig3.tooltip", fig_titles, years = year_range.rsk, fig = 3)
+  output$RSK_FIG_NAME_4   <- compose_tooltip_language("GIO.fig4.tooltip", fig_titles, years = reactive(input$RSK_TREND_YEARS), fig = 2)
+  output$RSK_FIG_NAME_5   <- compose_tooltip_language("GIO.fig5.tooltip", fig_titles, years = year_range.rsk, fig = 5)
+  output$RSK_FIG_NAME_6   <- compose_tooltip_language("GIO.fig6.tooltip", fig_titles, years = year_range.rsk, fig = 6)
   
   ## > Create DATA SOURCE INFO -------------------------------------------------
   
@@ -512,6 +683,7 @@ server <- function(input, output, session) {
   ### ... Render indicator data source info 
   build_data_source_container_server("DEM_DATA_SOURCE", current_indicator_source)
   build_data_source_container_server("HSE_DATA_SOURCE", current_indicator_source)
+  build_data_source_container_server("RSK_DATA_SOURCE", current_indicator_source)
   
   ### ··· Format data source for figures
   current_indicator_source_fig <- get_current_indicator_source_fig("GIO.get.sources", current_indicator_source)
@@ -844,6 +1016,502 @@ server <- function(input, output, session) {
   )
   
 
+  ## > RSK indicators ----------------------------------------------------------
+  ## > Create plots for RSK indicators
+  
+  ### ··· DATA -----------------------------------------------------------------
+  
+  ### ··· Read data for selected RSK indicator for Fig 1 and 2
+  data.rsk.1 <- reactive({
+    req(input$RSK_INDICATOR, input$GEOGRAPHY_SELECT)
+    geo_dir <- input$GEOGRAPHY_SELECT
+    switch(
+      input$RSK_INDICATOR,
+      "Birth to Teenage Mother" =           read_my_csv("Health", geo_dir, "rsk_btm_fig1_2"),
+      # "Birth to Unmarried Mother" =         read_my_csv("Health", geo_dir, "rsk_bum_fig1_2"),
+      # "Inadequate Prenatal Care" =          read_my_csv("Health", geo_dir, "rsk_ipc_fig1_2"),
+      # "Low Maternal Education at Birth" =   read_my_csv("Health", geo_dir, "rsk_lme_fig1_2"),
+      # "Medicaid or WIC Receipt at Birth" =  read_my_csv("Health", geo_dir, "rsk_mow_fig1_2"),
+      # "Preterm or Low Birth Weight" =       read_my_csv("Health", geo_dir, "rsk_plw_fig1_2"),
+      # "Prenatal Tobacco Exposure" =         read_my_csv("Health", geo_dir, "rsk_pte_fig1_2"),
+      "Cumulative Birth Risks" =            read_my_csv("Health", geo_dir, "rsk_cum_fig1_2")
+    )
+  })
+  
+  ### ··· Read data for selected RSK indicator for Fig 3
+  data.rsk.3 <- reactive({
+    # req(input$RSK_INDICATOR, input$GEOGRAPHY_SELECT) -- no need since already required by data.rsk.1
+    req(data.rsk.1())
+    geo_dir <- input$GEOGRAPHY_SELECT
+    switch(
+      input$RSK_INDICATOR,
+      "Birth to Teenage Mother" =           read_my_csv("Health", geo_dir, "rsk_btm_fig3_4"),
+      # "Birth to Unmarried Mother" =         read_my_csv("Health", geo_dir, "rsk_bum_fig3_4"),
+      # "Inadequate Prenatal Care" =          read_my_csv("Health", geo_dir, "rsk_ipc_fig3_4"),
+      # "Low Maternal Education at Birth" =   read_my_csv("Health", geo_dir, "rsk_lme_fig3_4"),
+      # "Medicaid or WIC Receipt at Birth" =  read_my_csv("Health", geo_dir, "rsk_mow_fig3_4"),
+      # "Preterm or Low Birth Weight" =       read_my_csv("Health", geo_dir, "rsk_plw_fig3_4"),
+      # "Prenatal Tobacco Exposure" =         read_my_csv("Health", geo_dir, "rsk_pte_fig3_4"),
+      "Cumulative Birth Risks" =            read_my_csv("Health", geo_dir, "rsk_cum_fig3_4")
+    )
+  })
+  
+  ### ··· Get data for selected RSK indicator
+  data.rsk <- reactive({
+    req(input$RSK_SUBSET, data.rsk.1)
+    data.rsk.1() %>% filter(subset_level == input$RSK_SUBSET)
+    # switch(
+    #   input$RSK_INDICATOR,
+    #   "Birth to Teenage Mother" = 
+    #     (data.rsk.1() %>% filter(subset_level == input$RSK_SUBSET)),
+    #   "Birth to Unmarried Mother" = 
+    #     (data.rsk.1() %>% filter(subset_level == input$RSK_SUBSET)),
+    #   "Inadequate Prenatal Care" = 
+    #     (data.rsk.1() %>% filter(subset_level == input$RSK_SUBSET)),
+    #   "Low Maternal Education at Birth" = 
+    #     (data.rsk.1() %>% filter(subset_level == input$RSK_SUBSET)),
+    #   "Medicaid or WIC Receipt at Birth" = 
+    #     (data.rsk.1() %>% filter(subset_level == input$RSK_SUBSET)),
+    #   "Preterm or Low Birth Weight" = 
+    #     (data.rsk.1() %>% filter(subset_level == input$RSK_SUBSET)),
+    #   "Prenatal Tobacco Exposure" = 
+    #     (data.rsk.1() %>% filter(subset_level == input$RSK_SUBSET)),
+    #   "Cumulative Birth Risks" = 
+    #     (data.rsk.1() %>% filter(subset_level == input$RSK_SUBSET))
+    #   )
+  })
+  
+  ### ··· Get data for selected RSK indicator
+  data.rsk.group <- reactive({
+    req(input$RSK_SUBSET, data.rsk.3())
+    data.rsk.3() %>% filter(subset_level == input$RSK_SUBSET)
+    # switch(
+    #   input$RSK_INDICATOR,
+    #   "Birth to Teenage Mother" = 
+    #     (data.rsk.3() %>% filter(subset_level == input$RSK_SUBSET)),
+    #   "Birth to Unmarried Mother" = 
+    #     (data.rsk.3() %>% filter(subset_level == input$RSK_SUBSET)),
+    #   "Inadequate Prenatal Care" = 
+    #     (data.rsk.3() %>% filter(subset_level == input$RSK_SUBSET)),
+    #   "Low Maternal Education at Birth" = 
+    #     (data.rsk.3() %>% filter(subset_level == input$RSK_SUBSET)),
+    #   "Medicaid or WIC Receipt at Birth" = 
+    #     (data.rsk.3() %>% filter(subset_level == input$RSK_SUBSET)),
+    #   "Preterm or Low Birth Weight" = 
+    #     (data.rsk.3() %>% filter(subset_level == input$RSK_SUBSET)),
+    #   "Prenatal Tobacco Exposure" = 
+    #     (data.rsk.3() %>% filter(subset_level == input$RSK_SUBSET)),
+    #   "Cumulative Birth Risks" = 
+    #     (data.rsk.3() %>% filter(subset_level == input$RSK_SUBSET))
+    #   )
+  })
+  
+  ### ··· MAP ------------------------------------------------------------------
+  ### ··· Get subset of selected RSK data for map
+  map_data.rsk.subset <- reactive({
+    req(input$DATA_TYPE)
+    req(nrow(data.rsk()) > 0)
+    req(year_range.rsk())
+    
+    if (input$DATA_TYPE == "count") {
+      my_data <-
+        data.rsk() %>%
+        mutate(index = count)
+    } else {
+      my_data <-
+        data.rsk()
+    }
+    
+    data <-
+      my_data %>%
+      filter(year == year_range.rsk()[[2]]) %>%
+      filter(fips != "19") %>%
+      mutate(fips = as.integer(fips)) %>%
+      mutate(index = ifelse(index == -9999, NA_real_, index))
+    return(data)
+  }) %>% debounce(100)
+  
+  ### ··· Plot map for selected RSK indicator
+  map.rsk <- reactive({
+    req(map_data.rsk.subset(), base.map.geos(), list_selected.geos(), current_indicator_type())
+    req(nrow(map_data.rsk.subset()) > 0)
+    plot_map_view(DATA = map_data.rsk.subset(),
+                  BASE_MAP = base.map.geos(),
+                  LOCATIONS = list_selected.geos(),
+                  DATA_TYPE = current_indicator_type(),
+                  OUTLINES = input$MAP_COUNTY_OUTLINES,
+                  LABELS = input$MAP_COUNTY_LABELS,
+                  COL = input$RSK_MAP_COL)
+  })
+  
+  ### ··· Render map for selected RSK indicator
+  output$RSK_MAP <- renderPlot({
+    map.rsk()
+  },
+  alt = reactive({
+    paste("This plot shows", fig_titles()$title[1], "for the state of Iowa")
+  })
+  )
+  
+  ### ··· Download map for selected RSK indicator
+  output$RSK_MAP_DOWNLOAD <- downloadHandler(
+    filename = function() { paste0("IDD - ", fig_titles()$title[1], ".png") },
+    content  = function(file){
+      # Add source info to map and some styling
+      download_fig <- 
+        format_map_download(map.rsk(), fig_titles, current_indicator_source_fig)
+      ggsave(file, 
+             plot = download_fig,
+             width = 10, height = 8, scale = 1.25, dpi = 150, bg = "white")
+    }
+  )
+  
+  ### ··· TREND ----------------------------------------------------------------
+  ### ··· Get subset of selected RSK data for trend line
+  trend_data.rsk.subset <- reactive({
+    req(input$RSK_TREND_YEARS, input$DATA_TYPE)
+    req(list_selected.geos(), dropdown_data.locations())
+    req(nrow(data.rsk()) > 0)
+    
+    if (input$DATA_TYPE == "count") {
+      my_data <-
+        data.rsk() %>%
+        mutate(index = count)
+    } else {
+      my_data <-
+        data.rsk()
+    }
+    
+    data <-
+      my_data %>%
+      filter(between(year, input$RSK_TREND_YEARS[1], input$RSK_TREND_YEARS[2])) %>%
+      filter(fips %in% list_selected.geos()) %>%
+      mutate(fips = factor(fips,
+                           levels = c("Statewide" = 19, dropdown_data.locations()),
+                           labels = names(c("Statewide" = 19, dropdown_data.locations()))
+      )) %>%
+      mutate(index = ifelse(index == -9999, NA_real_, index))
+    return(data)
+  })
+  
+  ### ··· Render trend line for selected RSK indicator
+  trend.rsk <- reactive({
+    req(trend_data.rsk.subset(), current_indicator_type())
+    req(nrow(trend_data.rsk.subset()) > 0)
+    plot_trend_view(DATA = trend_data.rsk.subset(),
+                    DATA_TYPE =  current_indicator_type(),
+                    LOCATIONS = input$LOCATION_SELECT,
+                    STATEWIDE = input$ADD_STATEWIDE,
+                    LABELS = input$ADD_VALUE_LABELS)
+  })
+  
+  ### ··· Render trend line for selected RSK indicator
+  output$RSK_TREND <- renderPlot({
+    trend.rsk()
+  },
+  alt = reactive({
+    paste("This plot shows", fig_titles()$title[2], "for the state of Iowa")
+  })
+  )
+  
+  ### ··· Download trend line for selected RSK indicator
+  output$RSK_TREND_DOWNLOAD <- downloadHandler(
+    filename = function() { paste0("IDD - ", fig_titles()$title[2], ".png") },
+    content  = function(file){
+      # Add source info to map and some styling
+      download_fig <-
+        format_figs_download(trend.rsk(), fig_titles, current_indicator_source_fig, 2)
+      # Set arguments for downloaded figure 
+      ggsave(file, 
+             plot = download_fig,
+             width = 10, height = 8, scale = 1.25, dpi = 150, bg = "white")
+    }
+    # filename = "cip.png", #file_name(),
+    # content = function(file){
+    #   ggsave(file,
+    #          plot = trend.rsk() +
+    #            labs(title = paste(fig_titles()$title[2]),
+    #                 # subtitle = "subtitle goes here", caption = "this is caption", tag = "ECI Indicators from IDD",
+    #                 alt = "trend line") +
+    #            theme(
+    #              plot.title = element_text(size = 20, face = "bold", hjust = 0.45, vjust = 0.5)
+    #            ),
+    #          width = 10, height = 6, scale = 1.25, dpi = 150, bg = "white")
+    # }
+  )
+  
+  
+  ### ··· LINE -----------------------------------------------------------------
+  ### ··· Get subset of selected RSK data for line graph
+  line_data.rsk.subset <- reactive({
+    req(input$DATA_TYPE)
+    req(year_range.rsk())
+    req(nrow(data.rsk.group()) > 0)
+    
+    if (input$DATA_TYPE == "count") {
+      my_data <-
+        data.rsk.group() %>%
+        mutate(index = count)
+    } else {
+      my_data <-
+        data.rsk.group()
+    }
+    
+    data <-
+      my_data %>%
+      filter(between(year, input$RSK_TREND_YEARS[1], input$RSK_TREND_YEARS[2])) %>%
+      filter(fips %in% 19) %>%
+      mutate(group_level = factor(group_level, levels = c("White", "Black", "Asian", "Other", "Hispanic"))) %>%
+      mutate(index = ifelse(index == -9999, NA_real_, index))
+    return(data)
+  })
+  
+  ### ··· Render line chart for fig 4
+  line.rsk <- reactive({
+    req(line_data.rsk.subset(), current_indicator_type())
+    req(nrow(line_data.rsk.subset()) > 0)
+    plot_line_view(DATA = line_data.rsk.subset(),
+                   DATA_TYPE =  current_indicator_type(),
+                   LOCATIONS = 19,
+                   STATEWIDE = TRUE,
+                   GROUPS = c("White", "Black", "Asian", "Other", "Hispanic"),
+                   LABELS = input$ADD_VALUE_LABELS)
+  })
+  
+  ### ··· Render line chart for fig 4
+  output$RSK_LINE <- renderPlot({
+    line.rsk()
+  },
+  alt = reactive({
+    paste("This plot shows", fig_titles()$title[4], "for the state of Iowa")
+  })
+  )
+  
+  ### ··· Download line chart for fig 4
+  output$RSK_LINE_DOWNLOAD <- downloadHandler(
+    filename = function() { paste0("IDD - ", fig_titles()$title[4], ".png") },
+    content  = function(file){
+      # Add source info to map and some styling
+      download_fig <-
+        format_figs_download(line.rsk(), fig_titles, current_indicator_source_fig, 4)
+      # Set arguments for downloaded figure 
+      ggsave(file, 
+             plot = download_fig,
+             width = 10, height = 8, scale = 1.25, dpi = 150, bg = "white")
+    }
+    # filename = "cip.png", #file_name(),
+    # content = function(file){
+    #   ggsave(file,
+    #          plot = line.rsk() +
+    #            labs(title = paste(fig_titles()$title[4]),
+    #                 # subtitle = "subtitle goes here", caption = "this is caption", tag = "ECI Indicators from IDD",
+    #                 alt = "line chart") +
+    #            theme(
+    #              plot.title = element_text(size = 20, face = "bold", hjust = 0.45, vjust = 0.5)
+    #            ),
+    #          width = 10, height = 6, scale = 1.25, dpi = 150, bg = "white")
+    # }
+  )
+  
+  
+  ### ··· BAR ------------------------------------------------------------------
+  ### ··· Get subset of selected RSK data for bar chart
+  bar_data.rsk.subset <- reactive({
+    req(input$DATA_TYPE)
+    req(year_range.rsk(), list_selected.geos(), dropdown_data.locations())
+    req(nrow(data.rsk.group()) > 0)
+    
+    if (input$DATA_TYPE == "count") {
+      my_data <-
+        data.rsk.group() %>%
+        mutate(index = count)
+    } else {
+      my_data <-
+        data.rsk.group()
+    }
+    
+    data <-
+      my_data %>%
+      filter(year == year_range.rsk()[[2]]) %>%
+      filter(fips %in% list_selected.geos()) %>%
+      mutate(fips = factor(fips,
+                           levels = c("Statewide" = 19, dropdown_data.locations()),
+                           labels = names(c("Statewide" = 19, dropdown_data.locations()))),
+             group = "none") %>%
+      mutate(group = ifelse(str_detect(group_level, "(H|h)ispanic"), "Ethnicity", "Race"),
+             group = factor(group, levels = c("Race", "Ethnicity")),
+             group_level = factor(group_level, levels = c("White", "Black", "Asian", "Other", "Hispanic")))
+    
+    return(data)
+  })
+  
+  ## ··· Render bar chart for selected RSK indicator
+  bar.rsk <- reactive({
+    req(bar_data.rsk.subset(), current_indicator_type())
+    req(nrow(bar_data.rsk.subset()) > 0)
+    plot_bar_view(DATA = bar_data.rsk.subset(),
+                  DATA_TYPE =  current_indicator_type(),
+                  LOCATIONS = input$LOCATION_SELECT,
+                  STATEWIDE = input$ADD_STATEWIDE,
+                  LABELS = input$ADD_VALUE_LABELS,
+                  FACET = TRUE)
+  })
+  
+  ### ··· Render bar chart for selected RSK indicator
+  output$RSK_BAR <- renderPlot({
+    bar.rsk()
+  },
+  alt = reactive({
+    paste("This plot shows", fig_titles()$title[3], "for the state of Iowa")
+  })
+  )
+  
+  ### ··· Download chart for selected RSK indicator
+  output$RSK_BAR_DOWNLOAD <- downloadHandler(
+    filename = function() { paste0("IDD - ", fig_titles()$title[3], ".png") },
+    content  = function(file){
+      # Add source info to map and some styling
+      download_fig <-
+        format_figs_download(bar.rsk(), fig_titles, current_indicator_source_fig, 3)
+      # Set arguments for downloaded figure 
+      ggsave(file, 
+             plot = download_fig,
+             width = 10, height = 8, scale = 1.25, dpi = 150, bg = "white")
+    }
+    # filename = "cip.png", #file_name(),
+    # content = function(file){
+    #   ggsave(file,
+    #          plot = bar.rsk() +
+    #            labs(title = paste(fig_titles()$title[3]),
+    #                 # subtitle = "subtitle goes here", caption = "this is caption", tag = "ECI Indicators from IDD",
+    #                 alt = "bar chart") +
+    #            theme(
+    #              plot.title = element_text(size = 20, face = "bold", hjust = 0.45, vjust = 0.5)
+    #            ),
+    #          width = 12, height = 6, scale = 1.25, dpi = 150, bg = "white")
+    # }
+  )
+  
+  
+  ### ··· STACKED BAR ----------------------------------------------------------
+  ### ··· Get data for statewide Cumulative Birth Risk 
+  data.rsk.cum <- reactive({
+    req(input$DATA_TYPE)
+    req(data.rsk.3())
+    req(input$RSK_INDICATOR == "Cumulative Birth Risks")
+    
+    my_data <-
+      data.rsk.3() %>%
+      filter(fips == 19) %>%
+      filter(subset_level != "3 or More Risks") %>%
+      filter(year == year_range.rsk()[[2]]) %>%
+      mutate(group = ifelse(str_detect(group_level, "(H|h)ispanic"), "Ethnicity", "Race"),
+             group = factor(group, levels = c("Race", "Ethnicity")),
+             group_level = factor(group_level, levels = c("White", "Black", "Asian", "Other", "Hispanic")))
+    
+    if (input$DATA_TYPE == "count") {
+      data <-
+        my_data %>%
+        mutate(index = count)
+    } else {
+      data <-
+        my_data 
+    }
+    
+    return(data)
+    
+  })
+  
+  ## ··· Render stacked bar chart for selected RSK indicator
+  bar.stacked.rsk <- reactive({
+    req(data.rsk.cum(), current_indicator_type())
+    req(nrow(data.rsk.cum()) > 0)
+    plot_bar_stacked_view(DATA = data.rsk.cum(),
+                          DATA_TYPE =  current_indicator_type(),
+                          LABELS = input$ADD_VALUE_LABELS,
+                          FACET = TRUE)
+  })
+  
+  ### ··· Render stacked bar chart for selected RSK indicator
+  output$RSK_BAR_STACKED <- renderPlot({
+    bar.stacked.rsk()
+  },
+  alt = reactive({
+    paste("This plot shows", fig_titles()$title[5], "for the state of Iowa")
+  })
+  )
+  
+  ### ··· Download stacked bar chart for selected RSK indicator
+  output$RSK_BAR_STACKED_DOWNLOAD <- downloadHandler(
+    filename = function() { paste0("IDD - ", fig_titles()$title[5], ".png") },
+    content  = function(file){
+      # Add source info to map and some styling
+      download_fig <-
+        format_figs_download(bar.stacked.rsk(), fig_titles, current_indicator_source_fig, 5)
+      # Set arguments for downloaded figure 
+      ggsave(file, 
+             plot = download_fig,
+             width = 10, height = 8, scale = 1.25, dpi = 150, bg = "white")
+    }
+    # filename = "cip.png", #file_name(),
+    # content = function(file){
+    #   ggsave(file,
+    #          plot = bar.stacked.rsk() +
+    #            labs(title = paste(fig_titles()$title[5]),
+    #                 # subtitle = "subtitle goes here", caption = "this is caption", tag = "ECI Indicators from IDD",
+    #                 alt = "bar chart") +
+    #            theme(
+    #              plot.title = element_text(size = 20, face = "bold", hjust = 0.45, vjust = 0.5)
+    #            ),
+    #          width = 12, height = 6, scale = 1.25, dpi = 150, bg = "white")
+    # }
+  )
+  
+  ### ··· PIE CHART ------------------------------------------------------------
+  ## ··· Render stacked bar chart for selected RSK indicator
+  pie.rsk <- reactive({
+    req(data.rsk.cum(), current_indicator_type())
+    req(nrow(data.rsk.cum()) > 0)
+    plot_pie_view(DATA = data.rsk.cum(), LABELS = input$ADD_VALUE_LABELS)
+  })
+  
+  ### ··· Render stacked bar chart for selected RSK indicator
+  output$RSK_PIE <- renderPlot({
+    pie.rsk()
+  },
+  alt = reactive({
+    paste("This plot shows", fig_titles()$title[6], "for the state of Iowa")
+  })
+  )
+  
+  ### ··· Download stacked bar chart for selected RSK indicator
+  output$RSK_PIE_DOWNLOAD <- downloadHandler(
+    filename = function() { paste0("IDD - ", fig_titles()$title[6], ".png") },
+    content  = function(file){
+      # Add source info to map and some styling
+      download_fig <-
+        format_figs_download(pie.rsk(), fig_titles, current_indicator_source_fig, 6)
+      # Set arguments for downloaded figure 
+      ggsave(file, 
+             plot = download_fig,
+             width = 10, height = 8, scale = 1.25, dpi = 150, bg = "white")
+    }
+    # filename = "cip.png", #file_name(),
+    # content = function(file){
+    #   ggsave(file,
+    #          plot = pie.rsk() +
+    #            labs(title = paste(fig_titles()$title[6]),
+    #                 # subtitle = "subtitle goes here", caption = "this is caption", tag = "ECI Indicators from IDD",
+    #                 alt = "bar chart") +
+    #            theme(
+    #              plot.title = element_text(size = 20, face = "bold", hjust = 0.45, vjust = 0.5)
+    #            ),
+    #          width = 12, height = 6, scale = 1.25, dpi = 150, bg = "white")
+    # }
+  )
+  
+  
+  
   ## > HSE indicators ----------------------------------------------------------
   ## > Create plots for HSE indicators
   
@@ -859,11 +1527,11 @@ server <- function(input, output, session) {
         # need to combine individual age data from fig3 with all age from fig1
         (bind_rows(read_my_csv(dim_dir, geo_dir, "hse_typ_fig1_2") %>% mutate(group_level = '0-5'), 
                    read_my_csv(dim_dir, geo_dir, "hse_typ_fig3"))),
-      "Working Parents" =           read_my_csv(dim_dir, geo_dir, "hse_wrk_fig1_2_3"),
-      "First Time Mother" =         read_my_csv(dim_dir, geo_dir, "hse_ftm_fig1_2"),
+      # "Working Parents" =           read_my_csv(dim_dir, geo_dir, "hse_wrk_fig1_2_3"),
+      # "First Time Mother" =         read_my_csv(dim_dir, geo_dir, "hse_ftm_fig1_2"),
       "Language Spoken at Home" =   read_my_csv(dim_dir, geo_dir, "hse_lng_fig1_2"),
       "Technology Access" =         read_my_csv(dim_dir, geo_dir, "hse_tch_fig1_2_3"),
-      "Transportation" =            read_my_csv(dim_dir, geo_dir, "hse_trn_fig1_2"),
+      # "Transportation" =            read_my_csv(dim_dir, geo_dir, "hse_trn_fig1_2"),
       "Work Schedules" =            read_my_csv(dim_dir, geo_dir, "hse_sch_fig1_2_3")
     )
   })
@@ -876,11 +1544,11 @@ server <- function(input, output, session) {
     switch(
       input$HSE_INDICATOR,
       "Household Type" =            data.hse.1(),
-      "Working Parents" =           data.hse.1(),
-      "First Time Mother" =         read_my_csv(dim_dir, geo_dir, "hse_ftm_fig3_4"),
+      # "Working Parents" =           data.hse.1(),
+      # "First Time Mother" =         read_my_csv(dim_dir, geo_dir, "hse_ftm_fig3_4"),
       "Language Spoken at Home" =   read_my_csv(dim_dir, geo_dir, "hse_lng_fig3"),
       "Technology Access" =         data.hse.1(),
-      "Transportation" =            read_my_csv(dim_dir, geo_dir, "hse_trn_fig3"),
+      # "Transportation" =            read_my_csv(dim_dir, geo_dir, "hse_trn_fig3"),
       "Work Schedules" =            data.hse.1()
     )
   })
