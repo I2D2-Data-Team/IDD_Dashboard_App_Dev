@@ -139,7 +139,14 @@ set_y_axis_label_format <- function(df, data_type = "percent", space_above_bar =
     scales::comma
   }
   
-  my_output <- list('ROUND' = ROUND, 'Y_MAX' = Y_MAX, 'Y_ACCURACY' = Y_ACCURACY, 'Y_FORMAT' = Y_FORMAT)
+  # determine length of legend text for geogrpahies
+  my_geos <- unique(df$fips)
+  G_LENGTH <- length(my_geos)
+  G_TEXT_LENGTH <- str_length(paste(my_geos, collapse = ""))
+  G_NROW <- G_TEXT_LENGTH %/% 70 + 1
+  
+  my_output <- list('ROUND' = ROUND, 'Y_MAX' = Y_MAX, 'Y_ACCURACY' = Y_ACCURACY, 'Y_FORMAT' = Y_FORMAT,
+                    'G_LENGTH' = G_LENGTH, 'G_TEXT_LENGTH' = G_TEXT_LENGTH, 'G_NROW' = G_NROW)
   
   return(my_output)
 }
@@ -377,7 +384,9 @@ plot_trend_view <- function(DATA, DATA_TYPE = "percent", LOCATIONS, STATEWIDE = 
          fill = NULL,
          alt = "Select County to Desplay Plot") +
     scale_color_manual(name = NULL, values = my_color_palette) +
-    theme_view_trend
+    theme_view_trend +
+    theme(legend.text = element_text(size = 16 - Y$G_NROW)) +
+    guides(color = guide_legend(nrow = Y$G_NROW))
   
   # add value labels
   if(LABELS) {
@@ -476,7 +485,9 @@ plot_bar_view <- function(DATA, DATA_TYPE = "percent", LOCATIONS,
     scale_fill_manual(values = my_color_palette) +
     labs(x = NULL, y = NULL, fill = NULL) +
     # facet_grid(~ group, scales = 'free', space = 'free') +
-    theme_view_bar
+    theme_view_bar +
+    theme(legend.text = element_text(size = 16 - Y$G_NROW)) +
+    guides(fill = guide_legend(nrow = Y$G_NROW))
   
   # adjust labels of the axis
   my_bar <- adjust_bar_chart_y_axis(my_bar, Y, DATA_TYPE)
