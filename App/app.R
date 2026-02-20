@@ -1207,7 +1207,13 @@ server <- function(input, output, session) {
   
   ### ··· Render trend line for selected RSK indicator
   output$RSK_TREND <- renderPlot({
-    trend.rsk()
+    if (input$GEOGRAPHY_SELECT %in% c("ECI-area", "HS-grantee")) {
+      trend.rsk() +
+        guides(color = guide_legend(ncol = 2)) +
+        theme(legend.text = element_text(size = 11))
+      } else {
+        trend.rsk()
+        }
   },
   alt = reactive({
     paste("This plot shows", fig_titles()$title[2], "for the state of Iowa")
