@@ -107,6 +107,108 @@ order_age <- function(x) {
 }
 
 
+# Function to format Y axis labels ---------------------------------------------
+set_y_axis_label_format <- function(df, data_type = "percent", space_above_bar = 1.25) {
+  my_max_value <- max(df$index, na.rm = TRUE)
+  # my_min_value <- min(df$index, na.rm = TRUE)
+  # Y_RANGE <- pretty(c(my_min_value, my_max_value), n = 5, shrink.sml = .01)
+  if(my_max_value < 0.2) { ROUND <- 1 } else { ROUND <- 0 }
+
+  # define max limit for Y axis 
+  if (data_type == "percent") {
+    Y_MAX <- ceiling(my_max_value * 100 * space_above_bar) / 100
+    # fix max values to 5% if all values are suppressed or absence
+    if (Y_MAX == 0) Y_MAX <- 0.05
+  } else {
+    Y_MAX <- ceiling(my_max_value * space_above_bar/10) * 10 
+    # fix max values to 5 if all values are suppressed or absence
+    if (Y_MAX == 0) Y_MAX <- 5
+  }
+  
+  # show decimal point on Y axis if values range from 0 to 10
+  if (my_max_value < .09) {
+    Y_ACCURACY <- 1/10
+  } else {
+    Y_ACCURACY <- 1
+  }
+  
+  # select format for Y scales
+  Y_FORMAT <- if (data_type == "percent") {
+    scales::percent
+  } else {
+    scales::comma
+  }
+  
+  my_output <- list('ROUND' = ROUND, 'Y_MAX' = Y_MAX, 'Y_ACCURACY' = Y_ACCURACY, 'Y_FORMAT' = Y_FORMAT)
+  
+  return(my_output)
+}
+
+
+# Function to adjust y axis of bar charts --------------------------------------
+adjust_bar_chart_y_axis <- function(plot, y_format, data_type = "percent", stacked = FALSE) {
+  if (stacked) {
+    LIM <- c(NA, NA)
+    EXP <- c(0.05, 0)
+  } else {
+    LIM <- c(NA, y_format$Y_MAX)
+    EXP <- c(0, 0)
+  }
+  # adjust labels of the axis
+  if (data_type == "percent") {
+    BAR <-
+      plot +
+      scale_y_continuous(labels = scales::percent_format(accuracy = y_format$Y_ACCURACY),
+                         limits = LIM,
+                         expand = EXP)
+  } else {
+    BAR <-
+      plot +
+      scale_y_continuous(labels = scales::comma,
+                         limits = LIM,
+                         expand = EXP)
+  }
+  
+  return(BAR)
+}
+
+
+# Function to format bar chart value labels ------------------------------------
+adjust_bar_chart_v_labels <- function(plot, bar_spacing = 0.8, data_type = "percent", stacked = FALSE) {
+  if (data_type == "percent") {
+    BAR <-
+      plot +
+      geom_text(aes(label = scales::percent(index, accuracy = .1)),
+                size = 4, vjust = 0.5, hjust = -0.2, angle = 90,
+                position = position_dodge(width = bar_spacing))
+  } else {
+    BAR <-
+      plot +
+      geom_text(aes(label = scales::comma(index, accuracy = 1)),
+                size = 4, vjust = 0.5, hjust = -0.2, angle = 90,
+                position = position_dodge(width = bar_spacing))
+  }
+  
+  if (stacked) {
+    if (data_type == "percent") {
+      BAR <- 
+        plot +
+        geom_text(aes(label = scales::percent(index, accuracy = .1)),
+                  size = 4, 
+                  position = position_stack(vjust = 0.5, reverse = TRUE))
+    } else {
+      BAR <- 
+        plot +
+        geom_text(aes(label = scales::comma(index, accuracy = 1)),
+                  size = 4, 
+                  position = position_stack(vjust = 0.5, reverse = TRUE))
+    }
+  }
+  
+  return(BAR)
+}
+
+
 # Set themes for plots ---------------------------------------------------------
 
 # theme for maps
@@ -249,18 +351,8 @@ plot_trend_view <- function(DATA, DATA_TYPE = "percent", LOCATIONS, STATEWIDE = 
     my_color_palette <- all_8_colors[1:length(LOCATIONS)]
   }
   
-  # Define value labels
-  my_max_value <- max(DATA$index, na.rm = TRUE)
-  my_min_value <- min(DATA$index, na.rm = TRUE)
-  Y_RANGE <- pretty(c(my_min_value, my_max_value), n = 5, shrink.sml = .01)
-  if(my_max_value < 0.2) { ROUND <- 1 } else { ROUND <- 0 }
-  
-  # select format for Y scales
-  y_label_format <- if (DATA_TYPE == "percent") {
-    scales::percent
-  } else {
-    scales::comma
-  }
+  # Set Y axis label format
+  Y <- set_y_axis_label_format(DATA, DATA_TYPE)
   
   # Define steps for x label increments
   x_steps <- ceiling(length(unique(DATA$year)) / 7)
@@ -269,8 +361,8 @@ plot_trend_view <- function(DATA, DATA_TYPE = "percent", LOCATIONS, STATEWIDE = 
     DATA %>%
     mutate(indicator_type = DATA_TYPE) %>%
     mutate(label = ifelse(indicator_type == "percent", 
-                          round(index * 100, ROUND) %>%
-                            format(nsmall = ROUND) %>%
+                          round(index * 100, Y$ROUND) %>%
+                            format(nsmall = Y$ROUND) %>%
                             paste0("%"),
                           round(index) %>%
                             format(big.mark = ",")),
@@ -279,7 +371,7 @@ plot_trend_view <- function(DATA, DATA_TYPE = "percent", LOCATIONS, STATEWIDE = 
     geom_point(size = 1.2) +
     geom_line(linewidth = 0.8) +
     scale_x_continuous(name = NULL, breaks = seq(2000, 2100, x_steps)) +
-    scale_y_continuous(labels = y_label_format) +
+    scale_y_continuous(labels = Y$Y_FORMAT) +
     labs(y = NULL,
          color = NULL, 
          fill = NULL,
@@ -307,18 +399,8 @@ plot_line_view <- function(DATA, DATA_TYPE = "percent", LOCATIONS, STATEWIDE = T
   my_color_palette <- all_8_colors
   # my_color_palette <- hcl.colors(length(GROUPS), "Zissou 1") # check more hcl colors here https://colorspace.r-forge.r-project.org/articles/hcl_palettes.html
   
-  # Define value labels
-  my_max_value <- max(DATA$index, na.rm = TRUE)
-  my_min_value <- min(DATA$index, na.rm = TRUE)
-  Y_RANGE <- pretty(c(my_min_value, my_max_value), n = 5, shrink.sml = .01)
-  if(my_max_value < 0.2) { ROUND <- 1 } else { ROUND <- 0 }
-  
-  # select format for Y scales
-  y_label_format <- if (DATA_TYPE == "percent") {
-    scales::percent
-  } else {
-    scales::comma
-  }
+  # Set Y axis label format
+  Y <- set_y_axis_label_format(DATA, DATA_TYPE)
   
   # Define steps for x label increments
   x_steps <- ceiling(length(unique(DATA$year)) / 7)
@@ -327,8 +409,8 @@ plot_line_view <- function(DATA, DATA_TYPE = "percent", LOCATIONS, STATEWIDE = T
     DATA %>%
     mutate(indicator_type = DATA_TYPE) %>%
     mutate(label = ifelse(indicator_type == "percent", 
-                          round(index * 100, ROUND) %>%
-                            format(nsmall = ROUND) %>%
+                          round(index * 100, Y$ROUND) %>%
+                            format(nsmall = Y$ROUND) %>%
                             paste0("%"),
                           round(index) %>%
                             format(big.mark = ",")),
@@ -337,7 +419,7 @@ plot_line_view <- function(DATA, DATA_TYPE = "percent", LOCATIONS, STATEWIDE = T
     geom_point(size = 1.2) +
     geom_line(linewidth = 0.8) +
     scale_x_continuous(name = NULL, breaks = seq(2000, 2100, x_steps)) +
-    scale_y_continuous(labels = y_label_format) +
+    scale_y_continuous(labels = Y$Y_FORMAT) +
     labs(y = NULL,
          color = NULL, 
          fill = NULL) +
@@ -375,29 +457,8 @@ plot_bar_view <- function(DATA, DATA_TYPE = "percent", LOCATIONS,
   # create value and sup_label for handling suppressed and not available values
   my_data <- suppress_value_labels(DATA)
   
-  # Define value labels
-  my_max_value <- max(my_data$value, na.rm = TRUE)
-  my_min_value <- min(my_data$value, na.rm = TRUE)
-  Y_RANGE <- pretty(c(my_min_value, my_max_value), n = 5, shrink.sml = .01)
-  if(my_max_value < 0.2) { ROUND <- 1 } else { ROUND <- 0 }
-  
-  # show decimal point on Y axis if values range from 0 to 10
-  if (my_max_value < .09) {
-    Y_ACCURACY <- 1/10
-  } else {
-    Y_ACCURACY <- 1
-  }
-  
-  # define max limit for Y axis
-  if (DATA_TYPE == "percent") {
-    Y_MAX <- ceiling(my_max_value * 100 * 1.15) / 100
-    # fix max values to 5% if all values are suppressed or absence
-    if (Y_MAX == 0) Y_MAX <- 0.05
-  } else {
-    Y_MAX <- ceiling(my_max_value * 1.15/10) * 10 
-    # fix max values to 5 if all values are suppressed or absence
-    if (Y_MAX == 0) Y_MAX <- 5
-  }
+  # Set Y axis label format
+  Y <- set_y_axis_label_format(DATA, DATA_TYPE)
   
   # set spacing between groups of bars
   my_sbg <- 0.8
@@ -417,35 +478,13 @@ plot_bar_view <- function(DATA, DATA_TYPE = "percent", LOCATIONS,
     # facet_grid(~ group, scales = 'free', space = 'free') +
     theme_view_bar
   
+  # adjust labels of the axis
+  my_bar <- adjust_bar_chart_y_axis(my_bar, Y, DATA_TYPE)
+  
   # add value labels
   if(LABELS) {
-    if (DATA_TYPE == "percent") {
-      my_bar <- 
-        my_bar +
-        geom_text(aes(label = scales::percent(index, accuracy = .1)),
-                  size = 4, vjust = -1, position = position_dodge(width = my_sbg))
-    } else {
-      my_bar <- 
-        my_bar +
-        geom_text(aes(label = scales::comma(index, accuracy = 1)),
-                  size = 4, vjust = -1, position = position_dodge(width = my_sbg))
-    }
+    my_bar <- adjust_bar_chart_v_labels(my_bar, my_sbg, DATA_TYPE)
   } 
-  
-  # adjust labels of the axis
-  if (DATA_TYPE == "percent") {
-    my_bar <-
-      my_bar +
-      scale_y_continuous(labels = scales::percent_format(accuracy = Y_ACCURACY),
-                         limits = c(NA, Y_MAX),
-                         expand = c(0, 0))
-  } else {
-    my_bar <-
-      my_bar +
-      scale_y_continuous(labels = scales::comma,
-                         limits = c(NA, Y_MAX),
-                         expand = c(0, 0))
-  }
   
   # add faceting 
   if (FACET == TRUE) {
@@ -471,29 +510,8 @@ plot_bar_view2 <- function(DATA, DATA_TYPE = "percent", LOCATIONS,
   # create value and sup_label for handling suppressed and not available values
   my_data <- suppress_value_labels(DATA)
   
-  # Define value labels
-  my_max_value <- max(my_data$value, na.rm = TRUE)
-  my_min_value <- min(my_data$value, na.rm = TRUE)
-  Y_RANGE <- pretty(c(my_min_value, my_max_value), n = 5, shrink.sml = .01)
-  if(my_max_value < 0.2) { ROUND <- 1 } else { ROUND <- 0 }
-  
-  # show decimal point on Y axis if values range from 0 to 10
-  if (my_max_value < .09) {
-    Y_ACCURACY <- 1/10
-  } else {
-    Y_ACCURACY <- 1
-  }
-  
-  # define max limit for Y axis
-  if (DATA_TYPE == "percent") {
-    Y_MAX <- ceiling(my_max_value * 100 * 1.15) / 100
-    # fix max values to 5% if all values are suppressed or absence
-    if (Y_MAX == 0) Y_MAX <- 0.05
-  } else {
-    Y_MAX <- ceiling(my_max_value * 1.15/10) * 10 
-    # fix max values to 5 if all values are suppressed or absence
-    if (Y_MAX == 0) Y_MAX <- 5
-  }
+  # Set Y axis label format
+  Y <- set_y_axis_label_format(DATA, DATA_TYPE)
   
   # set spacing between groups of bars
   my_sbg <- 0.8
@@ -513,35 +531,13 @@ plot_bar_view2 <- function(DATA, DATA_TYPE = "percent", LOCATIONS,
     # facet_grid(~ group, scales = 'free', space = 'free') +
     theme_view_bar
   
+  # adjust labels of the axis
+  my_bar <- adjust_bar_chart_y_axis(my_bar, Y, DATA_TYPE)
+  
   # add value labels
   if(LABELS) {
-    if (DATA_TYPE == "percent") {
-      my_bar <- 
-        my_bar +
-        geom_text(aes(label = scales::percent(index, accuracy = .1)),
-                  size = 4, vjust = -1, position = position_dodge(width = my_sbg))
-    } else {
-      my_bar <- 
-        my_bar +
-        geom_text(aes(label = scales::comma(index, accuracy = 1)),
-                  size = 4, vjust = -1, position = position_dodge(width = my_sbg))
-    }
+    my_bar <- adjust_bar_chart_v_labels(my_bar, my_sbg, DATA_TYPE)
   } 
-  
-  # adjust labels of the axis
-  if (DATA_TYPE == "percent") {
-    my_bar <-
-      my_bar +
-      scale_y_continuous(labels = scales::percent_format(accuracy = Y_ACCURACY),
-                         limits = c(NA, Y_MAX),
-                         expand = c(0, 0))
-  } else {
-    my_bar <-
-      my_bar +
-      scale_y_continuous(labels = scales::comma,
-                         limits = c(NA, Y_MAX),
-                         expand = c(0, 0))
-  }
   
   # add faceting 
   if (FACET == TRUE) {
@@ -565,29 +561,8 @@ plot_bar_stacked_view <- function(DATA, DATA_TYPE = "percent",
   # create value and sup_label for handling suppressed and not available values
   my_data <- suppress_value_labels(DATA)
   
-  # Define value labels
-  my_max_value <- max(my_data$value, na.rm = TRUE)
-  my_min_value <- min(my_data$value, na.rm = TRUE)
-  Y_RANGE <- pretty(c(my_min_value, my_max_value), n = 5, shrink.sml = .01)
-  if(my_max_value < 0.2) { ROUND <- 1 } else { ROUND <- 0 }
-  
-  # show decimal point on Y axis if values range from 0 to 10
-  if (my_max_value < .09) {
-    Y_ACCURACY <- 1/10
-  } else {
-    Y_ACCURACY <- 1
-  }
-  
-  # define max limit for Y axis
-  if (DATA_TYPE == "percent") {
-    Y_MAX <- ceiling(my_max_value * 100 * 1.15) / 100
-    # fix max values to 5% if all values are suppressed or absence
-    if (Y_MAX == 0) Y_MAX <- 0.05
-  } else {
-    Y_MAX <- ceiling(my_max_value * 1.15/10) * 10 
-    # fix max values to 5 if all values are suppressed or absence
-    if (Y_MAX == 0) Y_MAX <- 5
-  }
+  # Set Y axis label format
+  Y <- set_y_axis_label_format(DATA, DATA_TYPE)
   
   # set spacing between groups of bars
   my_sbg <- 0.8
@@ -605,31 +580,13 @@ plot_bar_stacked_view <- function(DATA, DATA_TYPE = "percent",
     theme_view_bar +
     theme(plot.margin = margin(t = 5, b = 5, r = 4, l = 2,  unit = "mm"))
   
+  # adjust labels of the axis
+  my_bar <- adjust_bar_chart_y_axis(my_bar, Y, DATA_TYPE, stacked = TRUE)
+  
   # add value labels
   if(LABELS) {
-    if (DATA_TYPE == "percent") {
-      my_bar <- 
-        my_bar +
-        geom_text(aes(label = scales::percent(index, accuracy = .1)),
-                  size = 4, position = position_stack(vjust = 0.5, reverse = TRUE))
-    } else {
-      my_bar <- 
-        my_bar +
-        geom_text(aes(label = scales::comma(index, accuracy = 1)),
-                  size = 4, position = position_stack(vjust = 0.5, reverse = TRUE))
-    }
+    my_bar <- adjust_bar_chart_v_labels(my_bar, my_sbg, DATA_TYPE, stacked = TRUE)
   } 
-  
-  # adjust labels of the axis
-  if (DATA_TYPE == "percent") {
-    my_bar <-
-      my_bar +
-      scale_y_continuous(labels = scales::percent_format(accuracy = Y_ACCURACY))
-  } else {
-    my_bar <-
-      my_bar +
-      scale_y_continuous(labels = scales::comma)
-  }
   
   # add faceting 
   if (FACET == TRUE) {
