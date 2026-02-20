@@ -1,3 +1,7 @@
+################################################################################
+## TESTING Technology ----------------------------------------------------------
+################################################################################
+
 data <- read_my_csv(dim_dir, "HS-grantee", "hse_tch_fig1_2_3")
 my_locations <- sort(c(211, 216, 217, 205, 203, 210, 213))
 my_locations_names <- hs_grantee_droplist[hs_grantee_droplist %in% my_locations]
@@ -120,10 +124,16 @@ ggsave(filename = "TEST.png",
 ## TESTING Languages ----------------------------------------------------------- 
 ################################################################################
 
+# County Data
 data <- read_my_csv(dim_dir, "IA-county", "hse_lng_fig3")
-
 my_locations <- sort(c(19057, 19023, 19143, 19113))
 my_locations_names <- ia_county_droplist[ia_county_droplist %in% my_locations]
+# HS Grantee Data
+data <- read_my_csv(dim_dir, "HS-grantee", "hse_lng_fig3")
+my_locations <- sort(c(211, 216, 217, 205, 203, 210, 213))
+# my_locations <- sort(c(211, 216, 217))
+my_locations_names <- hs_grantee_droplist[hs_grantee_droplist %in% my_locations]
+
 
 df <- 
   data %>%
@@ -167,8 +177,13 @@ my_source <-
 
 source("Code/dev/TEST_barplot.R")
 
+if (length(my_locations) > 3) {
+  width_scale <- 30 / (str_length(paste(unique(df$fips), collapse = "")) / length(my_locations))
+} else {
+  width_scale <- 1
+}
 # plot the barchart
-df %>%
+p3 <- df %>%
   mutate(index = count) %>%
   plot_bar_view2("percentNO", my_locations, FACET = TRUE, LABELS =  TRUE) +
   # geom_text(aes(label = scales::percent(index, accuracy = .1)), 
@@ -191,12 +206,22 @@ df %>%
     plot.tag.position = c(0.99, 0.19),
     plot.tag = element_text(hjust = 1, vjust = 1, size = 9, face = "bold.italic", color = "grey99"),
     plot.margin = margin(t = 15, b = 15, l = 10, r = 10, unit = "pt")
-  ) +
+  ) 
+p3 +
+  scale_fill_discrete(labels = function(x) stringr::str_wrap(x, width = 20)) +
+  theme(legend.text=ggplot2::element_text(size = 16 * width_scale)) + 
   coord_cartesian(clip = "off")
-  
+
 ggsave(filename = "TEST.png",
        width = 10, height = 8, scale = 1.25, dpi = 150, bg = "white")
 #
 
-
+scg <- str_length(paste(unique(df$fips), collapse = "")) %/% 70 + 1
+p3 +
+  guides(fill = guide_legend(nrow = scg)) +
+  # scale_fill_discrete(labels = function(x) stringr::str_wrap(x, width = 20)) +
+  theme(legend.text=ggplot2::element_text(size = 17 - scg)) +
+  coord_cartesian(clip = "off")
+ggsave(filename = "TEST.png",
+       width = 10, height = 8, scale = 1.25, dpi = 150, bg = "white")
 
