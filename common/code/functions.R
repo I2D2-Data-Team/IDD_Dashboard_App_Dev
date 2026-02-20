@@ -527,9 +527,11 @@ plot_bar_view2 <- function(DATA, DATA_TYPE = "percent", LOCATIONS,
     geom_text(aes(label = sup_label), size = 5, angle = 90, hjust = 0, vjust = 0.5,
               position = position_dodge(width = my_sbg)) +
     scale_fill_manual(values = my_color_palette) +
+    scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
     labs(x = NULL, y = NULL, fill = NULL) +
     # facet_grid(~ group, scales = 'free', space = 'free') +
-    theme_view_bar
+    theme_view_bar +
+    theme(axis.text.x = element_text(vjust = 1))
   
   # adjust labels of the axis
   my_bar <- adjust_bar_chart_y_axis(my_bar, Y, DATA_TYPE)
