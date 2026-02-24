@@ -258,6 +258,7 @@ ui <- page_sidebar(
           uiOutput("RSK_FIG_NAME_2"),
           withWaiter(
             shiny::plotOutput("RSK_TREND"),
+            # shiny::imageOutput("RSK_TREND_IMG"), 
             html = spin_3k(), color = "white"
           ),
           p("Select Years"),
@@ -272,6 +273,18 @@ ui <- page_sidebar(
           shiny::downloadButton("RSK_TREND_DOWNLOAD", label = "Download the Trend Line")
         )
       ),
+      
+      
+      
+      # ......................TEST HERE ................-----------
+      # shiny::plotOutput("FIG"),
+      # shiny::verbatimTextOutput("TEXT"),
+      # shiny::textOutput("TEXT1"),
+      # shiny::tableOutput("TABLE1"),
+      # shiny::textOutput("TEXT2"),
+      # shiny::tableOutput("TABLE2"),
+      
+      
       br(),
       fluidRow(
         column(
@@ -387,17 +400,6 @@ ui <- page_sidebar(
           shiny::downloadButton("HSE_TREND_DOWNLOAD", label = "Download the Trend Line")
         )
       ), 
-      
-      
-      # ......................TEST HERE ................-----------
-      # shiny::plotOutput("FIG"),
-      # shiny::verbatimTextOutput("TEXT"),
-      # shiny::textOutput("TEXT1"),
-      # shiny::tableOutput("TABLE1"),
-      # shiny::textOutput("TEXT2"),
-      # shiny::tableOutput("TABLE2"),
-      
-      
       br(),
       conditionalPanel(
         condition = "input.HSE_INDICATOR == 'First Time Mother'",
@@ -1207,18 +1209,43 @@ server <- function(input, output, session) {
   
   ### ··· Render trend line for selected RSK indicator
   output$RSK_TREND <- renderPlot({
-    if (input$GEOGRAPHY_SELECT %in% c("ECI-area", "HS-grantee")) {
-      trend.rsk() +
-        guides(color = guide_legend(ncol = 2)) +
-        theme(legend.text = element_text(size = 11))
-      } else {
-        trend.rsk()
-        }
+    plot.legend.format <-
+      format_figure_legend_fit(session$clientData$output_RSK_TREND_width,
+                               dropdown_data.locations,
+                               input$LOCATION_SELECT,
+                               input$ADD_STATEWIDE)
+    trend.rsk() +
+      guides(color = guide_legend(ncol = plot.legend.format$n.col)) +
+      theme(legend.text = element_text(size = plot.legend.format$font.size))
   },
   alt = reactive({
     paste("This plot shows", fig_titles()$title[2], "for the state of Iowa")
   })
   )
+
+  
+  # output$RSK_TREND_IMG <- renderImage({
+  #   width <- round(session$clientData$output_RSK_TREND_width)
+  #   height <- round(session$clientData$output_RSK_TREND_height)
+  #   if (is.null(width) || width == 0) width <- 1000
+  #   if (is.null(height) || height == 0) height <- 350
+  #   dynamic_res <- 72 - (1000 - width) %/% 30
+  #   outfile <- tempfile(fileext = '.png')
+  #   png(outfile, width = width, height = height, res = dynamic_res)
+  #   print(
+  #     trend.rsk() +
+  #       guides(color = guide_legend(ncol = 2))
+  #   )
+  #   dev.off()
+  #   list(
+  #     src = outfile,
+  #     contentType = 'image/png',
+  #     width = width,
+  #     height = height,
+  #     alt = paste("This plot shows", fig_titles()$title[2], "for the state of Iowa")
+  #   )
+  # }, deleteFile = TRUE
+  # )
   
   ### ··· Download trend line for selected RSK indicator
   output$RSK_TREND_DOWNLOAD <- downloadHandler(
@@ -1232,18 +1259,6 @@ server <- function(input, output, session) {
              plot = download_fig,
              width = 10, height = 8, scale = 1.25, dpi = 150, bg = "white")
     }
-    # filename = "cip.png", #file_name(),
-    # content = function(file){
-    #   ggsave(file,
-    #          plot = trend.rsk() +
-    #            labs(title = paste(fig_titles()$title[2]),
-    #                 # subtitle = "subtitle goes here", caption = "this is caption", tag = "ECI Indicators from IDD",
-    #                 alt = "trend line") +
-    #            theme(
-    #              plot.title = element_text(size = 20, face = "bold", hjust = 0.45, vjust = 0.5)
-    #            ),
-    #          width = 10, height = 6, scale = 1.25, dpi = 150, bg = "white")
-    # }
   )
   
   
@@ -1365,7 +1380,14 @@ server <- function(input, output, session) {
   
   ### ··· Render bar chart for selected RSK indicator
   output$RSK_BAR <- renderPlot({
-    bar.rsk()
+    plot.legend.format <-
+      format_figure_legend_fit(session$clientData$output_RSK_BAR_width,
+                               dropdown_data.locations,
+                               input$LOCATION_SELECT,
+                               input$ADD_STATEWIDE)
+    bar.rsk() +
+      guides(fill = guide_legend(ncol = plot.legend.format$n.col)) +
+      theme(legend.text = element_text(size = plot.legend.format$font.size))
   },
   alt = reactive({
     paste("This plot shows", fig_titles()$title[3], "for the state of Iowa")
@@ -1384,18 +1406,6 @@ server <- function(input, output, session) {
              plot = download_fig,
              width = 10, height = 8, scale = 1.25, dpi = 150, bg = "white")
     }
-    # filename = "cip.png", #file_name(),
-    # content = function(file){
-    #   ggsave(file,
-    #          plot = bar.rsk() +
-    #            labs(title = paste(fig_titles()$title[3]),
-    #                 # subtitle = "subtitle goes here", caption = "this is caption", tag = "ECI Indicators from IDD",
-    #                 alt = "bar chart") +
-    #            theme(
-    #              plot.title = element_text(size = 20, face = "bold", hjust = 0.45, vjust = 0.5)
-    #            ),
-    #          width = 12, height = 6, scale = 1.25, dpi = 150, bg = "white")
-    # }
   )
   
   
@@ -1705,7 +1715,14 @@ server <- function(input, output, session) {
   
   ### ··· Render trend line for selected HSE indicator
   output$HSE_TREND <- renderPlot({
-    trend.hse()
+    plot.legend.format <-
+      format_figure_legend_fit(session$clientData$output_HSE_TREND_width,
+                               dropdown_data.locations,
+                               input$LOCATION_SELECT,
+                               input$ADD_STATEWIDE)
+    trend.hse() +
+      guides(color = guide_legend(ncol = plot.legend.format$n.col)) +
+      theme(legend.text = element_text(size = plot.legend.format$font.size))
   },
   alt = reactive({
     paste("This plot shows", fig_titles()$title[2], "for the state of Iowa")
@@ -1981,7 +1998,7 @@ server <- function(input, output, session) {
   ### ............. TESTING SPACE .................. -----------------------
   
   # output$TEXT <- renderPrint({
-  #   str(map_data.hse.subset())
+  #   str(dropdown_data.locations())
   # })
   
   # output$TEXT1 <- renderText({
@@ -1989,7 +2006,7 @@ server <- function(input, output, session) {
   #   # nrow(map_data.hse.subset())
   # })
   # output$TABLE1 <- renderTable({
-  #   current_indicator_source_fig()
+  #   dropdown_data.locations()
   #   # bar_data.hse.subset() %>% head(7)
   # })
  

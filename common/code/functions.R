@@ -216,6 +216,46 @@ adjust_bar_chart_v_labels <- function(plot, bar_spacing = 0.8, data_type = "perc
 }
 
 
+# Function to adjust legend for rendered figures in browser --------------------
+format_figure_legend_fit <- function(width, locations,
+                                     geocodes = input$LOCATION_SELECT, 
+                                     statewide = input$ADD_STATEWIDE) {
+  # get current width (in pixels) of the plot output in the user's browser
+  plot.width <- width
+  # get codes of currently selected geographies (does not include statewide)
+  geo_codes <- locations()[locations() %in% geocodes]
+  # get names of those geographies
+  geo_names <- names(geo_codes)
+  # compute the length of all geographies including statewide (if selected)
+  if (statewide) {
+    length <- str_length(paste(geo_names, collapse = "")) + 10
+  } else {
+    length <- str_length(paste(geo_names, collapse = ""))
+  }
+  # compute length of two longest strings
+  length2 <- geo_names %>% str_length() %>% sort(decreasing = TRUE)  %>% .[1:2] %>% sum(na.rm = TRUE)
+  # set number of columns for legend based on comparison of string length with plot width
+  if (plot.width < 10 * length) {
+    if (plot.width < length2 *10) {
+      n = 1
+    } else {
+      n = 2
+    }
+    font.size = 16 - n
+  } else {
+    n = NULL
+    font.size = 16
+  }
+  # set font size for legend
+  if (plot.width < 350 && length2 > 50) {font.size = font.size - 3}
+  
+  output <- list('font.size' = font.size, 'n.col' = n)
+  
+  return(output)
+}
+
+
+
 # Set themes for plots ---------------------------------------------------------
 
 # theme for maps
