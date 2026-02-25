@@ -2,7 +2,6 @@
 library(shiny)
 library(bslib)
 library(bsicons)
-library(waiter)
 
 
 # # TESTING <<<<<<<<<<<<<<< -------------------------------------------------
@@ -50,49 +49,15 @@ ui <- page_sidebar(
   # Set Bootstrap to version 5
   theme = bslib::bs_theme(version = 5), 
   
-  # Measure shiny performance in a console, see: https://github.com/Appsilon/shiny.tictoc
-  tags$script(src = "https://cdn.jsdelivr.net/gh/Appsilon/shiny.tictoc@v0.2.0/shiny-tic-toc.min.js"),
-  
-  # Add CSS styling
-  includeCSS("https://raw.githubusercontent.com/I2D2-Data-Team/IDD_Dashboard_App_Dev/refs/heads/main/common/www/style.css"),
-  
-  # Add titile for browser
+  # Add title for browser
   window_title = "DEV Iowa Data Drive",
   
-  # Add favicon to browser
-  tags$head(
-    tags$link(rel = "shortcut icon", href = "https://i2d2.iastate.edu/wp-content/uploads/2020/08/favicon-96x96-1.png")
-  ),
+  # Add shiny settings
+  load_shiny_dashboard_setting(),
   
-  # Add loader to the whole dashabord and set style for individual figures
-  useWaiter(),
-  waiterPreloader(html = spin_5(), color = "grey"),
   
   # CREATE Left-Side-Bar UI ----------------------------------------------------
-  sidebar = sidebar(
-    selectizeInput(inputId = "GEOGRAPHY_SELECT", label = strong("Select Geography"), choices = NULL, selected = NULL, multiple = FALSE),
-    selectizeInput(inputId = "LOCATION_SELECT", label = strong("Select Location"), choices = NULL, selected = NULL, multiple = TRUE),
-    helpText(HTML("NOTE: Selected location(s) will be automatically shown across all indicators. To avoid cluttered plots number of selection is limited to  <strong>7</strong>."),
-             style="margin-left: 15px; font-size: 12px; color:#0097CD; white-space: normal; max-width: 185px;"),
-    br(),
-    strong("Adjust Map"),
-    shiny::checkboxInput('MAP_COUNTY_OUTLINES', "Show Outline of Selected Locations", value = TRUE),
-    shiny::checkboxInput('MAP_COUNTY_LABELS', "Show Names of Selected Locations", value = FALSE),
-    br(),
-    strong("Adjust Figures"),
-    checkboxInput(inputId = "ADD_STATEWIDE", label = "Include Statewide Data", value = TRUE),
-    checkboxInput(inputId = "ADD_VALUE_LABELS", label = "Add Value Labels", value = FALSE),
-    # show option for data type only for Child Demographics panel
-    conditionalPanel(
-      condition = "input.MEASURE == 'Child Demographics' || 'Household Characteristics'",
-      br(),
-      strong("Data Type"),
-      radioButtons(inputId = "DATA_TYPE", label = NULL,
-                   choices = list("Percentage" = 'percent', "Count" = 'count'),
-                   selected = "percent"),
-    ),
-    br()
-  ),
+  sidebar = shiny_sidebar_ui(),
   
   # CREATE Tab Panels for each Measure -----------------------------------------
   navset_card_pill(

@@ -38,3 +38,9 @@ source(file.path(common.function.path, "common/code/functions.R"))
 source(file.path(common.function.path, "common/code/global.R"))
 # Read modules
 source(file.path(common.function.path, "common/code/modules.R"))
+# Load shiny settings
+source(file.path(common.function.path, "common/code/settings.R"))
+# Load shiny sidebar
+source(file.path(common.function.path, "common/code/sidebar.R"))
+
+
