@@ -368,7 +368,7 @@ format_map_download <- function(fig, fig_title_data, fig_source_data) {
          # tag = "Designed by Giorgi Chighladze",
          alt = "Iowa heatmap") +
     theme(
-      plot.title = element_textbox_simple(size = 33, face = "bold", halign = 0.45, vjust = 0.5, lineheight = 1.5),
+      plot.title = element_textbox_simple(size = 30, face = "bold", halign = 0.45, vjust = 0.5, lineheight = 1.5,  maxwidth = unit(9, "in")),
       plot.caption = element_markdown(size = 10, hjust = 0, margin = margin(l = 20), lineheight = 1.3),
       plot.tag.position = c(0.99, 0.19),
       plot.tag = element_text(hjust = 1, vjust = 1, size = 9, face = "bold.italic", color = "grey99"),
@@ -719,7 +719,7 @@ format_figs_download <- function(fig, fig_title, fig_source_data, figure_number)
          # tag = "Designed by Giorgi Chighladze",
          alt = "Iowa figures") +
     theme(
-      plot.title = element_textbox_simple(size = 33, face = "bold", halign = 0.45, vjust = 0.5, lineheight = 1.5),
+      plot.title = element_textbox_simple(size = 33, face = "bold", halign = 0.45, vjust = 0.5, lineheight = 1.5,  maxwidth = unit(9, "in")),
       plot.caption = element_markdown(size = 10, hjust = 0, margin = margin(l = 20), lineheight = 1.3),
       plot.tag.position = c(0.99, 0.19),
       plot.tag = element_text(hjust = 1, vjust = 1, size = 9, face = "bold.italic", color = "grey99"),
