@@ -13,15 +13,18 @@ shiny_sidebar_ui <- function() {
     strong("Adjust Figures"),
     checkboxInput(inputId = "ADD_STATEWIDE", label = "Include Statewide Data", value = TRUE),
     checkboxInput(inputId = "ADD_VALUE_LABELS", label = "Add Value Labels", value = FALSE),
-    # show option for data type only for Child Demographics panel
-    conditionalPanel(
-      condition = "input.MEASURE == 'Child Demographics' || 'Household Characteristics'",
-      br(),
-      strong("Data Type"),
-      radioButtons(inputId = "DATA_TYPE", label = NULL,
-                   choices = list("Percentage" = 'percent', "Count" = 'count'),
-                   selected = "percent"),
-    ),
+    br(),
+    strong("Data Type"),
+    # # show option for data type only for Child Demographics panel
+    # conditionalPanel(
+    #   condition = "input.MEASURE == 'Child Demographics' || 'Household Characteristics'",
+    #   radioButtons(inputId = "DATA_TYPE", label = NULL,
+    #                choices = list("Percentage" = 'percent', "Count" = 'count'),
+    #                selected = "percent"),
+    # ),
+    radioButtons(inputId = "DATA_TYPE", label = NULL,
+                 choices = list("Percentage/Rate" = 'percent', "Count" = 'count'),
+                 selected = "percent"),
     br()
   )
 }
