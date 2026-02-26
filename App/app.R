@@ -89,7 +89,7 @@ ui <- page_sidebar(
               selectInput(
                 inputId = "DEM_SUBSET", 
                 label = strong("Subset"),
-                choices = c(""), 
+                choices = subset.dem.age, # c(""), 
                 width = "100%"
               )
             ),
@@ -193,7 +193,7 @@ ui <- page_sidebar(
               selectInput(
                 inputId = "RSK_SUBSET", 
                 label = strong("Subset"),
-                choices = c(""), 
+                choices = subset.rsk.btm, # c(""), 
                 width = "100%"
               )
             )
@@ -242,7 +242,7 @@ ui <- page_sidebar(
       
       
       
-      # ......................TEST HERE ................-----------
+      ## .. <<< --- TEST ---  HERE --- >>> -----------
       # shiny::plotOutput("FIG"),
       # shiny::verbatimTextOutput("TEXT"),
       # shiny::textOutput("TEXT1"),
@@ -316,7 +316,7 @@ ui <- page_sidebar(
               selectInput(
                 inputId = "HSE_SUBSET", 
                 label = strong("Subset"),
-                choices = c(""), 
+                choices = subset.hse.typ, # c(""), 
                 width = "100%"
               )
             ),
@@ -1961,7 +1961,7 @@ server <- function(input, output, session) {
   )
 
   
-  ### ............. TESTING SPACE .................. -----------------------
+  # >>> --- TEST -  HERE --- <<< -----------
   
   # output$TEXT <- renderPrint({
   #   str(dropdown_data.locations())
