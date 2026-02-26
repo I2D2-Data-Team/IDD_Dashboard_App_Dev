@@ -3,6 +3,11 @@
   visibility: hidden;
 }
 
+/* Set font for all dashboard */
+* {
+  font-family: 'Arial', 'Sans-Serif', 'Times New Roman', 'Comic Sans MS';
+}
+
 /* Change max-width of tooltip box from default 200px to 500px */
 .tooltip-inner {
   max-width: 500px !important; 
