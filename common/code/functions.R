@@ -265,7 +265,8 @@ theme_view_map <-
         legend.key.height = unit(4, "mm"),
         legend.key.width = unit(16, "mm"),
         legend.justification = c(0.45, 0.9),
-        legend.text = element_text(size = 16, face = "bold")
+        legend.text = element_text(size = 16, face = "bold"),
+        text = element_text(family = 'Arial')
   ) 
 
 # theme for trend lines
@@ -275,7 +276,7 @@ theme_view_trend <-
         panel.grid.major.x = element_blank(),
         panel.grid.minor.y = element_blank(),
         panel.grid.major.y = element_line(colour = "grey80"),
-        text = element_text(size = 18, lineheight = 1),
+        text = element_text(size = 18, lineheight = 1, family = 'Arial'),
         legend.position = "bottom",
         legend.justification = "top",
         legend.spacing.x = unit(2, "mm"),
@@ -292,7 +293,7 @@ theme_view_bar <-
         panel.spacing.x = unit(1, 'lines'),
         panel.background = element_rect(fill = "white"),
         strip.background = element_rect(fill = "gray90", color = "black"),
-        text = element_text(size = 18, lineheight = 1),
+        text = element_text(size = 18, lineheight = 1, family = 'Arial'),
         legend.position = "bottom",
         legend.justification = "top",
         legend.spacing.x = unit(2, "mm"),
@@ -678,7 +679,7 @@ plot_pie_view <- function(DATA, LABELS = FALSE){
           panel.spacing.x = unit(1, 'lines'),
           panel.background = element_rect(fill = "white"),
           strip.background = element_rect(fill = "gray90", color = "black"),
-          text = element_text(size = 18, lineheight = 1),
+          text = element_text(size = 18, lineheight = 1, family = 'Arial'),
           legend.position = "bottom",
           legend.justification = "top",
           legend.spacing.x = unit(2, "mm"),
