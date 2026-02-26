@@ -1,3 +1,5 @@
+options(shiny.reactlog = TRUE)
+
 # LOAD Libraries ---------------------------------------------------------------
 library(shiny)
 library(bslib)
@@ -409,8 +411,8 @@ server <- function(input, output, session) {
   ## > Update RIGHT-SIDE-BAR Drop-Down Lists -----------------------------------
   
   ### ··· Create GEOGRAPHY drop-down list --------------------------------------
-  update_geo_dropdown_server("GIO.select.geography", parent_session = session)
-  
+  # update_geo_dropdown_server("GIO.select.geography", parent_session = session)
+
   ### ··· Load drop-down data for LOCATION -------------------------------------
   dropdown_data.locations <- 
     load_geo_locations_server("GIO.load.locations", reactive(input$GEOGRAPHY_SELECT))
@@ -621,17 +623,17 @@ server <- function(input, output, session) {
   
   ### ··· Render figure titles 
   output$DEM_FIG_NAME_1 <- compose_tooltip_language("GIO.fig1.tooltip", fig_titles, years = year_range.dem, fig = 1)
-  output$DEM_FIG_NAME_2 <- compose_tooltip_language("GIO.fig2.tooltip", fig_titles, years = reactive(input$DEM_TREND_YEARS), fig = 2)
+  output$DEM_FIG_NAME_2 <- compose_tooltip_language("GIO.fig2.tooltip", fig_titles, years = reactive(input$DEM_TREND_YEARS), fig = 2, TRUE)  # to display all Available Years replace `years = year_range.dem`
   output$DEM_FIG_NAME_3 <- compose_tooltip_language("GIO.fig3.tooltip", fig_titles, years = year_range.dem, fig = 3)
   output$HSE_FIG_NAME_1 <- compose_tooltip_language("GIO.fig1.tooltip", fig_titles, years = year_range.hse, fig = 1)
-  output$HSE_FIG_NAME_2 <- compose_tooltip_language("GIO.fig2.tooltip", fig_titles, years = reactive(input$HSE_TREND_YEARS), fig = 2)
+  output$HSE_FIG_NAME_2 <- compose_tooltip_language("GIO.fig2.tooltip", fig_titles, years = reactive(input$HSE_TREND_YEARS), fig = 2, TRUE)
   output$HSE_FIG_NAME_3 <- compose_tooltip_language("GIO.fig3.tooltip", fig_titles, years = year_range.hse, fig = 3)
   output$HSE_FIG_NAME_3B <- compose_tooltip_language("GIO.fig3.tooltip", fig_titles, years = year_range.hse, fig = 3)
-  output$HSE_FIG_NAME_4B <- compose_tooltip_language("GIO.fig4.tooltip", fig_titles, years = reactive(input$HSE_TREND_YEARS), fig = 4) # assign fig = 2 to show year range
+  output$HSE_FIG_NAME_4B <- compose_tooltip_language("GIO.fig4.tooltip", fig_titles, years = reactive(input$HSE_TREND_YEARS), fig = 4, TRUE)
   output$RSK_FIG_NAME_1   <- compose_tooltip_language("GIO.fig1.tooltip", fig_titles, years = year_range.rsk, fig = 1)
-  output$RSK_FIG_NAME_2   <- compose_tooltip_language("GIO.fig2.tooltip", fig_titles, years = reactive(input$RSK_TREND_YEARS), fig = 2)
+  output$RSK_FIG_NAME_2   <- compose_tooltip_language("GIO.fig2.tooltip", fig_titles, years = reactive(input$RSK_TREND_YEARS), fig = 2, TRUE)
   output$RSK_FIG_NAME_3   <- compose_tooltip_language("GIO.fig3.tooltip", fig_titles, years = year_range.rsk, fig = 3)
-  output$RSK_FIG_NAME_4   <- compose_tooltip_language("GIO.fig4.tooltip", fig_titles, years = reactive(input$RSK_TREND_YEARS), fig = 2)
+  output$RSK_FIG_NAME_4   <- compose_tooltip_language("GIO.fig4.tooltip", fig_titles, years = reactive(input$RSK_TREND_YEARS), fig = 2, TRUE)
   output$RSK_FIG_NAME_5   <- compose_tooltip_language("GIO.fig5.tooltip", fig_titles, years = year_range.rsk, fig = 5)
   output$RSK_FIG_NAME_6   <- compose_tooltip_language("GIO.fig6.tooltip", fig_titles, years = year_range.rsk, fig = 6)
   
@@ -746,7 +748,7 @@ server <- function(input, output, session) {
       mutate(fips = as.integer(fips)) %>%
       mutate(index = ifelse(index == -9999, NA_real_, index))
     return(data)
-  }) %>% debounce(100)
+  }) #%>% debounce(100)
   
   ### ··· Plot map for selected DEM indicator
   map.dem <- reactive({
@@ -857,11 +859,11 @@ server <- function(input, output, session) {
       mutate(group_level = factor(group_level, levels = my_groups)) %>%
       mutate(index = ifelse(index == -9999, NA_real_, index))
     return(data)
-  }) %>% debounce(100)
+  }) #%>% debounce(100)
   
   ### ··· Create trend line for selected DEM indicator
   line.dem <- reactive({
-    # print("Step 1: creating DEM trend")
+    print("Step 2: creating DEM trend")
     req(line_data.dem.subset(), current_indicator_type())
     req(nrow(line_data.dem.subset()) > 0)
     
@@ -871,7 +873,7 @@ server <- function(input, output, session) {
       my_groups <- subset.dem.rac
     }
     
-    # print("Step 1: creating DEM trend 2")
+    print("Step 2: creating DEM trend 2")
     plot_line_view(DATA = line_data.dem.subset(),
                    # DATA_TYPE =  current_indicator_type(),
                    DATA_TYPE =  input$DATA_TYPE,
@@ -1096,7 +1098,7 @@ server <- function(input, output, session) {
       mutate(fips = as.integer(fips)) %>%
       mutate(index = ifelse(index == -9999, NA_real_, index))
     return(data)
-  }) %>% debounce(100)
+  }) #%>% debounce(100)
   
   ### ··· Plot map for selected RSK indicator
   map.rsk <- reactive({
@@ -1599,7 +1601,7 @@ server <- function(input, output, session) {
       mutate(fips = as.integer(fips)) %>%
       mutate(index = ifelse(index == -9999, NA_real_, index))
     return(data)
-  }) %>% debounce(100)
+  }) #%>% debounce(100)
   
   ### ··· Plot map for selected HSE indicator
   map.hse <- reactive({
