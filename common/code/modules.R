@@ -93,11 +93,11 @@ get_year_range_server <- function(id, indicator_trigger, data) {
 }
 
 # Compose tooltip language -----------------------------------------------------
-compose_tooltip_language <- function(id, data, years, fig = 1) {
+compose_tooltip_language <- function(id, data, years, fig = 1, range = FALSE) {
   moduleServer(id, function(input, output, session) {
     renderUI({
       # get correct year labels and range
-      if (fig == 2) {
+      if (range) {
         my_years_label <- "Years Shown:"
         my_years_shown <-  paste(years(), collapse = "-")
       } else {
