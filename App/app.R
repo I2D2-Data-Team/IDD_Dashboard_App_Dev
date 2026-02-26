@@ -1435,18 +1435,6 @@ server <- function(input, output, session) {
              plot = download_fig,
              width = 10, height = 8, scale = 1.25, dpi = 150, bg = "white")
     }
-    # filename = "cip.png", #file_name(),
-    # content = function(file){
-    #   ggsave(file,
-    #          plot = bar.stacked.rsk() +
-    #            labs(title = paste(fig_titles()$title[5]),
-    #                 # subtitle = "subtitle goes here", caption = "this is caption", tag = "ECI Indicators from IDD",
-    #                 alt = "bar chart") +
-    #            theme(
-    #              plot.title = element_text(size = 20, face = "bold", hjust = 0.45, vjust = 0.5)
-    #            ),
-    #          width = 12, height = 6, scale = 1.25, dpi = 150, bg = "white")
-    # }
   )
   
   ### ··· PIE CHART ------------------------------------------------------------
@@ -1472,24 +1460,13 @@ server <- function(input, output, session) {
     content  = function(file){
       # Add source info to map and some styling
       download_fig <-
-        format_figs_download(pie.rsk(), fig_titles, current_indicator_source_fig, 6)
+        format_figs_download(pie.rsk(), fig_titles, current_indicator_source_fig, 6) +
+        coord_polar("y", start = 0) 
       # Set arguments for downloaded figure 
       ggsave(file, 
              plot = download_fig,
              width = 10, height = 8, scale = 1.25, dpi = 150, bg = "white")
     }
-    # filename = "cip.png", #file_name(),
-    # content = function(file){
-    #   ggsave(file,
-    #          plot = pie.rsk() +
-    #            labs(title = paste(fig_titles()$title[6]),
-    #                 # subtitle = "subtitle goes here", caption = "this is caption", tag = "ECI Indicators from IDD",
-    #                 alt = "bar chart") +
-    #            theme(
-    #              plot.title = element_text(size = 20, face = "bold", hjust = 0.45, vjust = 0.5)
-    #            ),
-    #          width = 12, height = 6, scale = 1.25, dpi = 150, bg = "white")
-    # }
   )
   
   
