@@ -3,7 +3,6 @@ options(shiny.reactlog = TRUE)
 # LOAD Libraries ---------------------------------------------------------------
 library(shiny)
 library(bslib)
-library(bsicons)
 
 
 # # TESTING <<<<<<<<<<<<<<< -------------------------------------------------
@@ -703,7 +702,7 @@ server <- function(input, output, session) {
   
   ### ··· Get data for selected DEM indicator 
   data.dem <- reactive({
-    req(input$DEM_SUBSET, input$DEM_GROUP, data.dem.1())
+    req(data.dem.1(), input$DEM_SUBSET, input$DEM_GROUP)
     switch(
       input$DEM_INDICATOR,
       "Child Age" = 
@@ -715,7 +714,7 @@ server <- function(input, output, session) {
   
   ### ··· Get data for selected DEM indicator 
   data.dem.group <- reactive({
-    req(input$DEM_GROUP, data.dem.3())
+    req(data.dem.3(), input$DEM_GROUP)
     switch(
       input$DEM_INDICATOR,
       "Child Age" = 
@@ -1027,7 +1026,7 @@ server <- function(input, output, session) {
   
   ### ··· Get data for selected RSK indicator
   data.rsk <- reactive({
-    req(input$RSK_SUBSET, data.rsk.1)
+    req(data.rsk.1(), input$RSK_SUBSET)
     data.rsk.1() %>% filter(subset_level == input$RSK_SUBSET)
     # switch(
     #   input$RSK_INDICATOR,
@@ -1052,7 +1051,7 @@ server <- function(input, output, session) {
   
   ### ··· Get data for selected RSK indicator
   data.rsk.group <- reactive({
-    req(input$RSK_SUBSET, data.rsk.3())
+    req(data.rsk.3(), input$RSK_SUBSET)
     data.rsk.3() %>% filter(subset_level == input$RSK_SUBSET)
     # switch(
     #   input$RSK_INDICATOR,
@@ -1538,7 +1537,7 @@ server <- function(input, output, session) {
   
   ### ··· Get data for selected HSE indicator 
   data.hse <- reactive({
-    req(input$HSE_SUBSET, input$HSE_GROUP, data.hse.1())
+    req(data.hse.1(), input$HSE_SUBSET, input$HSE_GROUP)
     switch(
       input$HSE_INDICATOR,
       "Household Type" = 
@@ -1560,7 +1559,7 @@ server <- function(input, output, session) {
   
   ### ··· Get data for selected HSE indicator 
   data.hse.group <- reactive({
-    req(input$HSE_SUBSET, input$HSE_GROUP, data.hse.3())
+    req(data.hse.3(), input$HSE_SUBSET, input$HSE_GROUP)
     switch(input$HSE_INDICATOR,
            "Household Type" = 
              (data.hse.3() %>% filter(group_level == input$HSE_GROUP) %>% mutate(group_level = subset_level)),
