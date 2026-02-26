@@ -45,5 +45,6 @@ po/*~
 # RStudio Connect folder
 rsconnect/
 
-test/
+test/ 
+App/Data/Archive/
 TEST.png

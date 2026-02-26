@@ -3,7 +3,6 @@ options(shiny.reactlog = TRUE)
 # LOAD Libraries ---------------------------------------------------------------
 library(shiny)
 library(bslib)
-library(bsicons)
 
 
 # # TESTING <<<<<<<<<<<<<<< -------------------------------------------------
@@ -90,7 +89,7 @@ ui <- page_sidebar(
               selectInput(
                 inputId = "DEM_SUBSET", 
                 label = strong("Subset"),
-                choices = c(""), 
+                choices = subset.dem.age, # c(""), 
                 width = "100%"
               )
             ),
@@ -139,9 +138,9 @@ ui <- page_sidebar(
           ),
           p("Select Years"),
           shiny::sliderInput("DEM_TREND_YEARS", label = NULL, 
-                             min = 2020,
-                             max = 2024,
-                             value = c(2020, 2024),
+                             min = year.range.dem.age$min_year,
+                             max = year.range.dem.age$max_year,
+                             value = c(year.range.dem.age$value, year.range.dem.age$max_year),
                              step = 1,
                              sep = "",
                              ticks = FALSE,
@@ -194,7 +193,7 @@ ui <- page_sidebar(
               selectInput(
                 inputId = "RSK_SUBSET", 
                 label = strong("Subset"),
-                choices = c(""), 
+                choices = subset.rsk.btm, # c(""), 
                 width = "100%"
               )
             )
@@ -230,9 +229,9 @@ ui <- page_sidebar(
           ),
           p("Select Years"),
           shiny::sliderInput("RSK_TREND_YEARS", label = NULL, 
-                             min = 2020,
-                             max = 2024,
-                             value = c(2020, 2024),
+                             min = year.range.rsk.btm$min_year,
+                             max = year.range.rsk.btm$max_year,
+                             value = c(year.range.rsk.btm$value, year.range.rsk.btm$max_year),
                              step = 1,
                              sep = "",
                              ticks = FALSE,
@@ -243,7 +242,7 @@ ui <- page_sidebar(
       
       
       
-      # ......................TEST HERE ................-----------
+      ## .. <<< --- TEST ---  HERE --- >>> -----------
       # shiny::plotOutput("FIG"),
       # shiny::verbatimTextOutput("TEXT"),
       # shiny::textOutput("TEXT1"),
@@ -317,7 +316,7 @@ ui <- page_sidebar(
               selectInput(
                 inputId = "HSE_SUBSET", 
                 label = strong("Subset"),
-                choices = c(""), 
+                choices = subset.hse.typ, # c(""), 
                 width = "100%"
               )
             ),
@@ -357,9 +356,9 @@ ui <- page_sidebar(
           ),
           p("Select Years"),
           shiny::sliderInput("HSE_TREND_YEARS", label = NULL, 
-                             min = 2020,
-                             max = 2024,
-                             value = c(2020, 2024),
+                             min = year.range.hse.typ$min_year,
+                             max = year.range.hse.typ$max_year,
+                             value = c(year.range.hse.typ$value, year.range.hse.typ$max_year),
                              step = 1,
                              sep = "",
                              ticks = FALSE,
@@ -703,7 +702,7 @@ server <- function(input, output, session) {
   
   ### ··· Get data for selected DEM indicator 
   data.dem <- reactive({
-    req(input$DEM_SUBSET, input$DEM_GROUP, data.dem.1())
+    req(data.dem.1(), input$DEM_SUBSET, input$DEM_GROUP)
     switch(
       input$DEM_INDICATOR,
       "Child Age" = 
@@ -715,7 +714,7 @@ server <- function(input, output, session) {
   
   ### ··· Get data for selected DEM indicator 
   data.dem.group <- reactive({
-    req(input$DEM_GROUP, data.dem.3())
+    req(data.dem.3(), input$DEM_GROUP)
     switch(
       input$DEM_INDICATOR,
       "Child Age" = 
@@ -1027,7 +1026,7 @@ server <- function(input, output, session) {
   
   ### ··· Get data for selected RSK indicator
   data.rsk <- reactive({
-    req(input$RSK_SUBSET, data.rsk.1)
+    req(data.rsk.1(), input$RSK_SUBSET)
     data.rsk.1() %>% filter(subset_level == input$RSK_SUBSET)
     # switch(
     #   input$RSK_INDICATOR,
@@ -1052,7 +1051,7 @@ server <- function(input, output, session) {
   
   ### ··· Get data for selected RSK indicator
   data.rsk.group <- reactive({
-    req(input$RSK_SUBSET, data.rsk.3())
+    req(data.rsk.3(), input$RSK_SUBSET)
     data.rsk.3() %>% filter(subset_level == input$RSK_SUBSET)
     # switch(
     #   input$RSK_INDICATOR,
@@ -1436,18 +1435,6 @@ server <- function(input, output, session) {
              plot = download_fig,
              width = 10, height = 8, scale = 1.25, dpi = 150, bg = "white")
     }
-    # filename = "cip.png", #file_name(),
-    # content = function(file){
-    #   ggsave(file,
-    #          plot = bar.stacked.rsk() +
-    #            labs(title = paste(fig_titles()$title[5]),
-    #                 # subtitle = "subtitle goes here", caption = "this is caption", tag = "ECI Indicators from IDD",
-    #                 alt = "bar chart") +
-    #            theme(
-    #              plot.title = element_text(size = 20, face = "bold", hjust = 0.45, vjust = 0.5)
-    #            ),
-    #          width = 12, height = 6, scale = 1.25, dpi = 150, bg = "white")
-    # }
   )
   
   ### ··· PIE CHART ------------------------------------------------------------
@@ -1473,24 +1460,13 @@ server <- function(input, output, session) {
     content  = function(file){
       # Add source info to map and some styling
       download_fig <-
-        format_figs_download(pie.rsk(), fig_titles, current_indicator_source_fig, 6)
+        format_figs_download(pie.rsk(), fig_titles, current_indicator_source_fig, 6) +
+        coord_polar("y", start = 0) 
       # Set arguments for downloaded figure 
       ggsave(file, 
              plot = download_fig,
              width = 10, height = 8, scale = 1.25, dpi = 150, bg = "white")
     }
-    # filename = "cip.png", #file_name(),
-    # content = function(file){
-    #   ggsave(file,
-    #          plot = pie.rsk() +
-    #            labs(title = paste(fig_titles()$title[6]),
-    #                 # subtitle = "subtitle goes here", caption = "this is caption", tag = "ECI Indicators from IDD",
-    #                 alt = "bar chart") +
-    #            theme(
-    #              plot.title = element_text(size = 20, face = "bold", hjust = 0.45, vjust = 0.5)
-    #            ),
-    #          width = 12, height = 6, scale = 1.25, dpi = 150, bg = "white")
-    # }
   )
   
   
@@ -1538,7 +1514,7 @@ server <- function(input, output, session) {
   
   ### ··· Get data for selected HSE indicator 
   data.hse <- reactive({
-    req(input$HSE_SUBSET, input$HSE_GROUP, data.hse.1())
+    req(data.hse.1(), input$HSE_SUBSET, input$HSE_GROUP)
     switch(
       input$HSE_INDICATOR,
       "Household Type" = 
@@ -1560,7 +1536,7 @@ server <- function(input, output, session) {
   
   ### ··· Get data for selected HSE indicator 
   data.hse.group <- reactive({
-    req(input$HSE_SUBSET, input$HSE_GROUP, data.hse.3())
+    req(data.hse.3(), input$HSE_SUBSET, input$HSE_GROUP)
     switch(input$HSE_INDICATOR,
            "Household Type" = 
              (data.hse.3() %>% filter(group_level == input$HSE_GROUP) %>% mutate(group_level = subset_level)),
@@ -1962,7 +1938,7 @@ server <- function(input, output, session) {
   )
 
   
-  ### ............. TESTING SPACE .................. -----------------------
+  # >>> --- TEST -  HERE --- <<< -----------
   
   # output$TEXT <- renderPrint({
   #   str(dropdown_data.locations())

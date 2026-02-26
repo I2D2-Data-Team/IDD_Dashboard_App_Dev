@@ -30,7 +30,7 @@ subset.hse.typ <- c("Married", "Female No Spouse", "Male No Spouse")
 subset.hse.wrk <- c("All Parents Working", "No Parent Working", "Single Working Parent", "Two Parents, One Working", "Two Parents, Both Working")
 subset.hse.tch <- c("Computing Device", "Internet Access")
 subset.hse.trn <- c("Drove Alone", "Carpooled", "Public Transportation", "Walked", "Other", "Not Applicable")
-subset.sch.wrk <- c("none")
+# subset.sch.wrk <- c("none")
 
 subset.rsk.btm <- c("none")
 subset.rsk.bum <- c("none")
@@ -58,6 +58,11 @@ group.rsk.plw <- c("White", "Black", "Asian", "Other", "Hispanic")
 group.rsk.pte <- c("White", "Black", "Asian", "Other", "Hispanic")
 group.rsk.cum <- c("White", "Black", "Asian", "Other", "Hispanic")
 
+
+# Set year range for default indicators
+year.range.dem.age <- metadata.fig.sources %>% filter(id == "DEM.DEM.AGE") %>% select(id, min_year, max_year) %>% mutate(value = ifelse(max_year - min_year < 5, min_year, max_year - 5))
+year.range.hse.typ <- metadata.fig.sources %>% filter(id == "DEM.HSE.TYP") %>% select(id, min_year, max_year) %>% mutate(value = ifelse(max_year - min_year < 5, min_year, max_year - 5))
+year.range.rsk.btm <- metadata.fig.sources %>% filter(id == "HSN.RSK.BTM") %>% select(id, min_year, max_year) %>% mutate(value = ifelse(max_year - min_year < 5, min_year, max_year - 5))
 
 # # Read county data to check SUBSET and GROUP levels
 # data.county.dem.age.1 <- read_my_csv(dim_dir, "IA-county", "dem_age_fig1_2_3")

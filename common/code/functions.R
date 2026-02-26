@@ -201,13 +201,13 @@ adjust_bar_chart_v_labels <- function(plot, bar_spacing = 0.8, data_type = "perc
       BAR <- 
         plot +
         geom_text(aes(label = scales::percent(index, accuracy = .1)),
-                  size = 4, 
+                  size = 4, color = "white",
                   position = position_stack(vjust = 0.5, reverse = TRUE))
     } else {
       BAR <- 
         plot +
         geom_text(aes(label = scales::comma(index, accuracy = 1)),
-                  size = 4, 
+                  size = 4, color = "white",
                   position = position_stack(vjust = 0.5, reverse = TRUE))
     }
   }
