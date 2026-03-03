@@ -327,7 +327,7 @@ plot_map_view <- function(DATA, BASE_MAP, LOCATIONS,
     # align legend bar and its text and remove ticks
     guides(
       fill = guide_colorbar(
-        label.theme = element_text(hjust = c(1.1, -0.1), vjust = 7),
+        label.theme = element_text(hjust = c(1.1, -0.1), vjust = 5),
         ticks = FALSE)
     )
   
@@ -380,7 +380,7 @@ format_map_download <- function(fig, fig_title_data, fig_source_data) {
       fill = guide_colorbar(
         barwidth = 20, 
         barheight = 1.2,
-        label.theme = element_text(hjust = c(1.1, -0.1), vjust = 7, size = 20),
+        label.theme = element_text(hjust = c(1.1, -0.1), vjust = 5, size = 20),
         ticks = FALSE)
     ) +
     coord_sf(clip = "off")
