@@ -40,7 +40,7 @@ hhs_region_droplist <- ia_county_crosswalk %>% count(hhs_number, hhs_regions) %>
 # Named list of 17 Head Start Grantees
 hs_grantee_droplist <- ia_county_crosswalk %>% count(hs_number, head_start_grantees) %>% create_named_list()
 # Named list of 8 MIECHV Service Areas (based on 2026)
-miechv_droplist <- ia_county_crosswalk %>% count(miechv_number_26, miechv_26) %>% create_named_list()
+miechv_droplist <- ia_county_crosswalk %>% count(miechv_number_26, miechv_26) %>% filter(miechv_number_26 != 699) %>% create_named_list()
 
 
 # Color Palettes ----------------------------------------------------------
