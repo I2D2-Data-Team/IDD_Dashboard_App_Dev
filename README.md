@@ -1,9 +1,9 @@
 # IDD_App_Dev
 Developing and testing IDD dashboard elements.
 
-## Producation
+## Production
 
-Links to producation dashboards
+Links to production dashboards
 
 https://dashboards.i2d2.iastate.edu/Demographic/  
 https://dashboards.i2d2.iastate.edu/Economic/  
