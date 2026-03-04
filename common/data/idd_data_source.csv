@@ -45,6 +45,7 @@ HSN.CRM.DMV,Health and Social Needs,Community Crime,Domestic Violence,United Sta
 SRV.SER.CCA,Services,Human Services,Availability of Child Care,Iowa Department of Health and Human Services,HHS DCPDMAST Report,2007,2025,12/06/23,https://hhs.iowa.gov/about/open-records,NA
 SRV.SER.SNP,Services,Human Services,SNAP,United States Census Bureau American Community Survey (ACS) 5-Year Estimates,Table B22002,2018,2024,01/29/26,https://data.census.gov/,NA
 SRV.SER.WIC,Services,Human Services,WIC,Iowa Department of Health and Human Services,Number of Children Receiving WIC Benefits by Age Group,2018,2024,01/22/26,https://hhs.iowa.gov/about/open-records,NA
+SRV.SER.WIC,Services,Human Services,WIC,Iowa's Integrated Data System for Decision-Making (I2D2),Iowa Birth Records,2007,2024,1/26/2026,https://i2d2.iastate.edu/,NA
 SRV.SER.DNT,Services,Human Services,Dental Services,Iowa Department of Health and Human Services,Iowa Public Health Tracking Portal,2018,2023,10/07/24,https://hhs.iowa.gov/about/data-reports/health-disease/oral-health/child-dental-services-medicaid-data,NA
 SRV.SER.HCC,Services,Human Services,Health Coverage,United States Census Bureau American Community Survey (ACS) 5-Year Estimates,Table B27001,2018,2024,01/29/26,https://data.census.gov/,NA
 SRV.SER.HCC,Services,Human Services,Health Coverage,United States Census Bureau American Community Survey (ACS) 5-Year Estimates,Table B27016,2018,2024,01/29/26,https://data.census.gov/,NA
