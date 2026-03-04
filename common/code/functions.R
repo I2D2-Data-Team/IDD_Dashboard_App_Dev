@@ -10,7 +10,8 @@ if (is.na(Sys.getenv("SHINY_SERVER_VERSION", unset = NA))) {
   read_my_csv <- function(dir, geo, file_name) {
     read_csv(file.path(Sys.getenv("USERPROFILE"), "Box/My IDS/_DATA/IDD", dir, geo, data_file_suffix(geo, file_name)),
              col_types = cols(.default = "c", year = "i", index = "d", count = "d")) %>%
-      rename_geography_columns_to_fips(geo_name = geo)
+      rename_geography_columns_to_fips(geo_name = geo) %>% 
+      filter(!fips %in% 699)
   }
   
 } else {
@@ -34,7 +35,8 @@ if (is.na(Sys.getenv("SHINY_SERVER_VERSION", unset = NA))) {
   read_my_csv <- function(dir, geo, file_name) {
     storage_read_csv(azure_container_con(), file.path("Dashboards", dir, geo, data_file_suffix(geo, file_name)), 
                      col_types = cols(.default = "c", year = "i", index = "d", count = "d")) %>%
-      rename_geography_columns_to_fips(geo_name = geo)
+      rename_geography_columns_to_fips(geo_name = geo) %>% 
+      filter(!fips %in% 699)
   }
 }
 
