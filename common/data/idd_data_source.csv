@@ -19,7 +19,7 @@ HSN.DIS.CDS,Health and Social Needs,Disabilities,Disabilities,United States Cens
 HSN.CRM.DMV,Health and Social Needs,Community Crime,Domestic Violence,Iowa Department of Public Safety,Iowa Uniform Crime Reporting System,2018,2024,11/05/25,https://icrime.dps.state.ia.us/CrimeInIowa,NA
 HSN.CRM.DMV,Health and Social Needs,Community Crime,Domestic Violence,United States Census Bureau American Community Survey (ACS) 5-Year Estimates,Table S0101,2018,2024,01/29/26,https://https://data.census.gov/,NA
 HSN.EDU.HDP,Health and Social Needs,Education,Dropout Rate,Iowa Department of Education,Grades 7-12 Dropout by Subgroup,2017,2024,10/20/25,https://educate.iowa.gov/pk-12/data/education-statistics/graduation-dropout-rates,NA
-HSN.EDU.ELS,Health and Social Needs,Education,Early Literacy Skills,Iowa Department of Education,ECI Early Literacy Report,2015,2025,01/30/26,0,NA
+HSN.EDU.ELS,Health and Social Needs,Education,Early Literacy Skills,Iowa Department of Education,"Early Literacy Fall Screening Data, Panorama Student Success",2015,2025,01/30/26,https://hhs.iowa.gov/initiatives/eci,NA
 ECO.CIP.FPL,Economic,Children in Poverty,Federal Poverty Level (FPL),United States Census Bureau American Community Survey (ACS) 5-Year Estimates,Table B17024,2018,2024,01/29/26,https://data.census.gov/,NA
 ECO.CIP.FPL,Economic,Children in Poverty,Federal Poverty Level (FPL),United States Census Bureau American Community Survey (ACS) 5-Year Estimates,Tables B17020A-I,2018,2024,01/29/26,https://data.census.gov/,NA
 ECO.APP.FPL,Economic,All People in Poverty,Federal Poverty Level (FPL),United States Census Bureau American Community Survey (ACS) 5-Year Estimates,Tables B17020A-I,2018,2024,01/29/26,https://data.census.gov/,NA

@@ -65,8 +65,13 @@ tooltip_new %>%
 
 # Save a Clean Version of Data Source -------------------------------------
 
+# Copy data to local file
+file.copy(from = "C://Users/gio/Box/Iowa IDS/Projects/_IA Data Drive/Indicators/I2D2 Data/ACS INDICATORS/Indicators_GioUpload/data_source.csv",
+          to = "data/data_source.csv", overwrite = TRUE)
+
 # Read data source file from Jamy
-datasource <- read_csv("data/data_source.csv", col_types = cols(.default = "c")) %>% 
+datasource <- 
+  read_csv("data/data_source.csv", col_types = cols(.default = "c")) %>%
   janitor::remove_empty(which = c("rows")) %>%
   janitor::clean_names()
 
