@@ -56,13 +56,14 @@ start_time <- Sys.time()
 for (i in seq_along(folder_cross$my.cybox)) {
   files_to <- file.path(my_cybox, folder_cross$my.cybox[i])
   files_from <- list.files(file.path(i2d2_cybox, folder_cross$i2d2.cybox[i]),
+                           # pattern = "_snp_.*csv$",
                            full.names = TRUE)
-  # for (j in files_from) {
-  #   cat("Copying", crayon::blue(basename(j)), "to", 
-  #       crayon::green(folder_cross$my.cybox[i]), "in my CyBox\n")
-  # }
+  for (j in files_from) {
+    cat("Copying", crayon::blue(basename(j)), "to",
+        crayon::green(folder_cross$my.cybox[i]), "in my CyBox\n")
+  }
   cat("start copying", crayon::green(folder_cross$my.cybox[i]), "data to my CyBox\n")
-  # copy_new_ind_data(files_from, files_to, data_cross)
+  copy_new_ind_data(files_from, files_to, data_cross)
   
   number_copied <- number_copied + length(files_from)
 }
