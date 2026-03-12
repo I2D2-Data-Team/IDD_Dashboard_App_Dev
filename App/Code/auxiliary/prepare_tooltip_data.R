@@ -1,5 +1,6 @@
 # This code cleans the tooltip data and prepares for use by IDD
 library(tidyverse)
+library(lubridate)
 
 
 # Save a Clean Version of Tooltip -----------------------------------------
@@ -102,7 +103,8 @@ datasource_new <-
         TRUE ~ indicator)
     ) %>%
   distinct(dimension, measure, indicator, source, data, min_year, max_year, date_obtained, link, notes) %>%
-  bind_rows(datasource_rest %>% select(-id))
+  bind_rows(datasource_rest %>% select(-id)) %>%
+  mutate(date_obtained = lubridate::mdy(date_obtained))
 
 # save data
 tooltip_new %>%

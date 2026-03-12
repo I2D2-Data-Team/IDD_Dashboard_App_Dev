@@ -194,7 +194,7 @@ get_current_indicator_source_fig <- function(id, data) {
         mutate(source = paste0(my_data_source_list, source, ", ", data)) %>%
         group_by(measure, indicator) %>%
         summarise(source = str_flatten(unique(source), collapse = ";"),
-                  date = format(max(as.Date(date_obtained, "%m/%d/%y")), "%B %d, %Y"),
+                  date = format(max(as.Date(date_obtained)), "%B %d, %Y"),
                   year = as.integer(max(max_year)),
                   years = paste0(max(min_year), "-", max(max_year))
         ) %>%

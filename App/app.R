@@ -283,7 +283,10 @@ ui <- page_sidebar(
             shiny::downloadButton("RSK_PIE_DOWNLOAD", label = "Download the Pie Chart")
           ) 
         )
-      )
+      ),
+      br(),
+      build_data_source_container_ui(id = "RSK_DATA_SOURCE"),
+      br()
     ),
     
     ## .. Household Characteristics UI -----------------------------------------
