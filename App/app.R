@@ -130,6 +130,14 @@ ui <- page_sidebar(
           shiny::downloadButton("DEM_MAP_DOWNLOAD", label = "Download the Map")
         ), 
         column(
+          width = 6,
+          strong("This is Leaflet Map"),
+          withWaiter(
+            leaflet::leafletOutput("DEM_LEAF"),
+            html = spin_3k(), color = "white"
+          )
+        ), 
+        column(
           width = 6, 
           uiOutput("DEM_FIG_NAME_2"),
           withWaiter(
@@ -745,12 +753,30 @@ server <- function(input, output, session) {
     
     data <- 
       my_data %>%
-      filter(year == year_range.dem()[[2]]) %>%
-      filter(fips != "19") %>%
-      mutate(fips = as.integer(fips)) %>%
-      mutate(index = ifelse(index == -9999, NA_real_, index))
+      compute_map_data(
+        YEAR_RANGE = year_range.dem()[[2]],
+        LOCATIONS = dropdown_data.locations(), 
+        DATA_TYPE = current_indicator_type()
+      )
     return(data)
   }) #%>% debounce(100)
+  
+  leaf.dem <- reactive({
+    plot_map_leaflet(
+      DATA      <- map_data.dem.subset(),
+      BASE_MAP  <- base.map.geos(),
+      LOCATIONS <- list_selected.geos(),
+      DATA_TYPE <- current_indicator_type(),
+      OUTLINES  <- input$MAP_COUNTY_OUTLINES,
+      LABELS    <- input$MAP_COUNTY_LABELS,
+      COL       <- input$DEM_MAP_COL
+    )
+  })
+  
+  output$DEM_LEAF <- renderLeaflet({
+    leaf.dem()
+  }
+  )
   
   ### ··· Plot map for selected DEM indicator
   map.dem <- reactive({
@@ -1093,12 +1119,13 @@ server <- function(input, output, session) {
         data.rsk()
     }
     
-    data <-
+    data <- 
       my_data %>%
-      filter(year == year_range.rsk()[[2]]) %>%
-      filter(fips != "19") %>%
-      mutate(fips = as.integer(fips)) %>%
-      mutate(index = ifelse(index == -9999, NA_real_, index))
+      compute_map_data(
+        YEAR_RANGE = year_range.rsk()[[2]],
+        LOCATIONS = dropdown_data.locations(), 
+        DATA_TYPE = current_indicator_type()
+      )
     return(data)
   }) #%>% debounce(100)
   
@@ -1575,10 +1602,11 @@ server <- function(input, output, session) {
     
     data <- 
       my_data %>%
-      filter(year == year_range.hse()[[2]]) %>%
-      filter(fips != "19") %>%
-      mutate(fips = as.integer(fips)) %>%
-      mutate(index = ifelse(index == -9999, NA_real_, index))
+      compute_map_data(
+        YEAR_RANGE = year_range.hse()[[2]],
+        LOCATIONS = dropdown_data.locations(), 
+        DATA_TYPE = current_indicator_type()
+      )
     return(data)
   }) #%>% debounce(100)
   
