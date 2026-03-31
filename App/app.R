@@ -130,6 +130,14 @@ ui <- page_sidebar(
           shiny::downloadButton("DEM_MAP_DOWNLOAD", label = "Download the Map")
         ), 
         column(
+          width = 6,
+          strong("This is Leaflet Map"),
+          withWaiter(
+            leaflet::leafletOutput("DEM_LEAF"),
+            html = spin_3k(), color = "white"
+          )
+        ), 
+        column(
           width = 6, 
           uiOutput("DEM_FIG_NAME_2"),
           withWaiter(
@@ -752,6 +760,23 @@ server <- function(input, output, session) {
       )
     return(data)
   }) #%>% debounce(100)
+  
+  leaf.dem <- reactive({
+    plot_map_leaflet(
+      DATA      <- map_data.dem.subset(),
+      BASE_MAP  <- base.map.geos(),
+      LOCATIONS <- list_selected.geos(),
+      DATA_TYPE <- current_indicator_type(),
+      OUTLINES  <- input$MAP_COUNTY_OUTLINES,
+      LABELS    <- input$MAP_COUNTY_LABELS,
+      COL       <- input$DEM_MAP_COL
+    )
+  })
+  
+  output$DEM_LEAF <- renderLeaflet({
+    leaf.dem()
+  }
+  )
   
   ### ··· Plot map for selected DEM indicator
   map.dem <- reactive({
