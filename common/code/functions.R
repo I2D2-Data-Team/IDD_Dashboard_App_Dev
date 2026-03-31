@@ -308,6 +308,163 @@ theme_view_bar <-
 
 # Functions for making plots ---------------------------------------------------
 
+## > DATA for MAP
+compute_map_data <- function(DATA, YEAR_RANGE, LOCATIONS, DATA_TYPE){
+  my_data <- 
+    DATA %>%
+    filter(year == YEAR_RANGE) %>%
+    filter(fips != "19") %>%
+    mutate(fips = as.integer(fips)) %>%
+    select(-dimension, -count)
+  
+  # Define rounding for value labels
+  if(max(my_data$index, na.rm = TRUE) < 0.2) {
+    ROUND <- 1
+  } else {
+    ROUND <- 0
+  }
+  
+  # prepare input data for leaflet maps
+  map_data <-
+    # get names of locations
+    data.frame(location = names(LOCATIONS),
+               fips = unlist(LOCATIONS, use.names = FALSE)) %>%
+    # combine location names and data
+    left_join(my_data, by = "fips") %>%
+    mutate(variable_type = DATA_TYPE) %>%
+    mutate(label = ifelse(variable_type == "percent", 
+                          sprintf(paste0("%.", ROUND, "f%s"), index*100, "%"),
+                          format(round(index), big.mark = ',', trim = TRUE)),
+           # show suppressed instead of NA on popup/tooltip box
+           label =
+             case_when(
+               index == -9999 ~ "Suppressed", 
+               is.na(index) ~ "Not Available/Not Applicable",
+               TRUE ~ label),
+           index = ifelse(index == -9999, NA_real_, index)
+    ) %>%
+    rowwise() %>%
+    mutate(popup_label =
+             htmltools::HTML(
+               sprintf('<b>%s</b>',
+                       # htmltools::HTML(sprintf('<b>%s</b>
+                       # <br><span style="padding-left: 10px;">Year: <b>%s</b>
+                       # <br><span style="padding-left: 10px;">%s: <b>%s</b>',
+                       location, year, "value", label))) %>%
+    ungroup()
+  
+  
+  return(map_data)
+}
+
+## > MAP plot for LEAFLET ------------------------------------------------------
+plot_map_leaflet <- function(DATA, BASE_MAP, LOCATIONS,
+                             DATA_TYPE = "percent",
+                             OUTLINES = FALSE, LABELS = FALSE,
+                             COL = "colors_red_gradient") {
+  
+  # set colors
+  pal <- leaflet::colorNumeric(
+    palette = map_colors[[COL]], 
+    na.color = "whitesmoke",
+    domain = na.exclude(DATA$index)
+  )
+  
+  # Plot Iowa map
+  my_leaflet_map <-
+    BASE_MAP %>%
+    left_join(DATA, c("fips")) %>%
+    leaflet(options = leafletOptions(zoomControl = FALSE,
+                                     minZoom = 6, maxZoom = 8,
+                                     dragging = TRUE)) %>% 
+    addTiles() %>%
+    addPolygons(stroke = TRUE, 
+                weight = 1,
+                color = "grey",
+                smoothFactor = 0.3, 
+                fillOpacity = 0.975,
+                fillColor = ~pal(index), 
+                label = ~popup_label,
+                labelOptions = labelOptions(
+                  direction = "auto", 
+                  textsize = "15px",
+                  style = list(
+                    "border-color" = "rgba(0,0,0,0.5)",
+                    padding = "4px 8px"
+                  )),
+                highlightOptions = highlightOptions(
+                  weight = 5,
+                  color = "#666",
+                  fillOpacity = 0.905,
+                  bringToFront = FALSE)
+    ) %>%
+    addProviderTiles(providers$CartoDB.Positron)
+  
+  # set default text for NAs
+  my_na_label <- "Not Available"
+  
+    # add continuous legend
+    if (DATA_TYPE == "percent") {
+      my_leaflet_map <-  
+        my_leaflet_map %>%
+        addLegendNumeric(pal = pal, values = na.omit(DATA$index), orientation = 'horizontal',
+                         naLabel = my_na_label,
+                         numberFormat = function(x) {
+                           paste0(prettyNum(x*100, format = "f", big.mark = ",", digits = 3, scientific = FALSE), "%")
+                         },
+                         width = 120, height = 20, position = 'bottomright')
+    } else {
+      my_leaflet_map <-
+        my_leaflet_map %>%
+        addLegendNumeric(pal = pal, values = na.omit(DATA$index), orientation = 'horizontal',
+                         naLabel = my_na_label,
+                         numberFormat = function(x) {
+                           prettyNum(x, format = "f", big.mark = ",", digits = 3, scientific = FALSE)
+                         },
+                         width = 120, height = 20, position = 'bottomright')
+    }
+  
+    
+  # exclude statewide from the list
+  SELECTED_LOCS <- LOCATIONS[LOCATIONS != 19]
+    
+  # add names of selected locations
+  if(LABELS & length(SELECTED_LOCS) > 0) {
+    my_leaflet_map <- 
+      my_leaflet_map %>%
+      addLabelOnlyMarkers(
+        data = BASE_MAP %>% filter(fips %in% SELECTED_LOCS),
+        lng = ~long, lat = ~lat, label = ~name,
+        labelOptions = labelOptions(noHide = TRUE, 
+                                    direction = 'center',
+                                    textOnly = TRUE
+        ))
+  } 
+  
+  # add outline of selected locations
+  if(OUTLINES) {
+    my_leaflet_map <- 
+      my_leaflet_map %>%
+      addPolylines(
+        data = BASE_MAP %>% filter(fips %in% SELECTED_LOCS),
+        stroke = TRUE,
+        weight = 3,
+        opacity = 0.75,
+        color = "black") 
+  } 
+  
+  # add outline of state
+  my_leaflet_map <- 
+    my_leaflet_map %>% 
+    addPolylines(data = ia_state_map, highlightOptions = FALSE,
+                 weight = 3,
+                 opacity = 0.75,
+                 color = "black")
+  
+  return(my_leaflet_map)
+}
+
+
 ## > MAP plot for VIEW ---------------------------------------------------------
 plot_map_view <- function(DATA, BASE_MAP, LOCATIONS,
                           DATA_TYPE = "percent",

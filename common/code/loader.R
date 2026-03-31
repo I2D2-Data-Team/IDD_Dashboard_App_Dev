@@ -16,6 +16,8 @@ library(purrr)
 library(ggrepel)
 library(ggtext)
 library(sf)
+library(leaflet)
+library(leaflegend)
 
 
 # Load R scripts ---------------------------------------------------------------
