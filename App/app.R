@@ -745,10 +745,11 @@ server <- function(input, output, session) {
     
     data <- 
       my_data %>%
-      filter(year == year_range.dem()[[2]]) %>%
-      filter(fips != "19") %>%
-      mutate(fips = as.integer(fips)) %>%
-      mutate(index = ifelse(index == -9999, NA_real_, index))
+      compute_map_data(
+        YEAR_RANGE = year_range.dem()[[2]],
+        LOCATIONS = dropdown_data.locations(), 
+        DATA_TYPE = current_indicator_type()
+      )
     return(data)
   }) #%>% debounce(100)
   
@@ -1093,12 +1094,13 @@ server <- function(input, output, session) {
         data.rsk()
     }
     
-    data <-
+    data <- 
       my_data %>%
-      filter(year == year_range.rsk()[[2]]) %>%
-      filter(fips != "19") %>%
-      mutate(fips = as.integer(fips)) %>%
-      mutate(index = ifelse(index == -9999, NA_real_, index))
+      compute_map_data(
+        YEAR_RANGE = year_range.rsk()[[2]],
+        LOCATIONS = dropdown_data.locations(), 
+        DATA_TYPE = current_indicator_type()
+      )
     return(data)
   }) #%>% debounce(100)
   
@@ -1575,10 +1577,11 @@ server <- function(input, output, session) {
     
     data <- 
       my_data %>%
-      filter(year == year_range.hse()[[2]]) %>%
-      filter(fips != "19") %>%
-      mutate(fips = as.integer(fips)) %>%
-      mutate(index = ifelse(index == -9999, NA_real_, index))
+      compute_map_data(
+        YEAR_RANGE = year_range.hse()[[2]],
+        LOCATIONS = dropdown_data.locations(), 
+        DATA_TYPE = current_indicator_type()
+      )
     return(data)
   }) #%>% debounce(100)
   
