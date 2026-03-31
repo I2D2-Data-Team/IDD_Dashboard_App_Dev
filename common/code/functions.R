@@ -363,15 +363,6 @@ plot_map_leaflet <- function(DATA, BASE_MAP, LOCATIONS,
                              OUTLINES = FALSE, LABELS = FALSE,
                              COL = "colors_red_gradient") {
   
-  # DATA      <- map_data.dem.subset()
-  # BASE_MAP  <- base.map.geos()
-  # LOCATIONS <- list_selected.geos()
-  # DATA_TYPE <- current_indicator_type()
-  # OUTLINES  <- input$MAP_COUNTY_OUTLINES
-  # LABELS    <- input$MAP_COUNTY_LABELS
-  # COL       <- input$DEM_LEAFLET_COL
-  
-  
   # set colors
   pal <- leaflet::colorNumeric(
     palette = map_colors[[COL]], 
@@ -409,6 +400,7 @@ plot_map_leaflet <- function(DATA, BASE_MAP, LOCATIONS,
     ) %>%
     addProviderTiles(providers$CartoDB.Positron)
   
+  # set default text for NAs
   my_na_label <- "Not Available"
   
     # add continuous legend
@@ -431,45 +423,45 @@ plot_map_leaflet <- function(DATA, BASE_MAP, LOCATIONS,
                          },
                          width = 120, height = 20, position = 'bottomright')
     }
+  
     
-    SELECTED_LOCS <- LOCATIONS[LOCATIONS != 19]
+  # exclude statewide from the list
+  SELECTED_LOCS <- LOCATIONS[LOCATIONS != 19]
     
-    # add names of selected locations
-    if(LABELS & length(SELECTED_LOCS) > 0) {
-      my_leaflet_map <- 
-        my_leaflet_map %>%
-        addLabelOnlyMarkers(
-          data = BASE_MAP %>% filter(fips %in% SELECTED_LOCS),
-          lng = ~long, lat = ~lat, label = ~name,
-          labelOptions = labelOptions(noHide = TRUE, 
-                                      direction = 'center',
-                                      textOnly = TRUE
-          ))
-    } 
-    
-    # add outline of selected locations
-    if(OUTLINES) {
-      my_leaflet_map <- 
-        my_leaflet_map %>%
-        addPolylines(
-          data = BASE_MAP %>% filter(fips %in% SELECTED_LOCS),
-          stroke = TRUE,
-          weight = 3,
-          opacity = 0.75,
-          color = "black") 
-    } 
-    
-    # add outline of state
+  # add names of selected locations
+  if(LABELS & length(SELECTED_LOCS) > 0) {
     my_leaflet_map <- 
-      my_leaflet_map %>% 
-      addPolylines(data = ia_state_map, highlightOptions = FALSE,
-                   weight = 3,
-                   opacity = 0.75,
-                   color = "black")
-    
-    return(my_leaflet_map)
+      my_leaflet_map %>%
+      addLabelOnlyMarkers(
+        data = BASE_MAP %>% filter(fips %in% SELECTED_LOCS),
+        lng = ~long, lat = ~lat, label = ~name,
+        labelOptions = labelOptions(noHide = TRUE, 
+                                    direction = 'center',
+                                    textOnly = TRUE
+        ))
+  } 
   
+  # add outline of selected locations
+  if(OUTLINES) {
+    my_leaflet_map <- 
+      my_leaflet_map %>%
+      addPolylines(
+        data = BASE_MAP %>% filter(fips %in% SELECTED_LOCS),
+        stroke = TRUE,
+        weight = 3,
+        opacity = 0.75,
+        color = "black") 
+  } 
   
+  # add outline of state
+  my_leaflet_map <- 
+    my_leaflet_map %>% 
+    addPolylines(data = ia_state_map, highlightOptions = FALSE,
+                 weight = 3,
+                 opacity = 0.75,
+                 color = "black")
+  
+  return(my_leaflet_map)
 }
 
 
