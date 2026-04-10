@@ -112,9 +112,10 @@ order_age <- function(x) {
 # Function to format Y axis labels ---------------------------------------------
 set_y_axis_label_format <- function(df, data_type = "percent", space_above_bar = 1.25) {
   my_max_value <- max(df$index, na.rm = TRUE)
-  # my_min_value <- min(df$index, na.rm = TRUE)
+  my_min_value <- min(df$index, na.rm = TRUE)
+  my_range_value <- my_max_value - my_min_value
   # Y_RANGE <- pretty(c(my_min_value, my_max_value), n = 5, shrink.sml = .01)
-  if(my_max_value < 0.2) { ROUND <- 1 } else { ROUND <- 0 }
+  if(my_range_value < 0.013) { ROUND <- 2 } else { ROUND <- 1 }
 
   # define max limit for Y axis 
   if (data_type == "percent") {
