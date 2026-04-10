@@ -23,7 +23,7 @@ dim_dir <- "Demographic"
 # READ DATA ---------------------------------------------------------------
 
 # Set subsets for each indicator
-subset.dem.age <- c("0-2", "3-4", "5", "6-8", "9-11", "12-14", "15-17")
+subset.dem.age <- c("0-5", "0-2", "3-4", "5", "6-8", "9-11", "12-14", "15-17")
 subset.dem.rac <- c("White", "Black", "Asian", "Other", "Hispanic")
 subset.hse.lng <- c("English Only", "Spanish", "Other Language")
 subset.hse.typ <- c("Married", "Female No Spouse", "Male No Spouse")
