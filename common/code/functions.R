@@ -568,12 +568,11 @@ plot_trend_view <- function(DATA, DATA_TYPE = "percent", LOCATIONS, STATEWIDE = 
   my_trend <-
     DATA %>%
     mutate(indicator_type = DATA_TYPE) %>%
-    mutate(label = ifelse(indicator_type == "percent", 
-                          round(index * 100, Y$ROUND) %>%
-                            format(nsmall = Y$ROUND) %>%
-                            paste0("%"),
-                          round(index) %>%
-                            format(big.mark = ",")),
+    mutate(label =
+             case_when(
+               indicator_type == "percent" ~ (round(index * 100, Y$ROUND) %>% format(nsmall = Y$ROUND) %>% paste0("%")),
+               indicator_type == "rate" ~ (round(index, 2) %>% format(big.mark = ",")),
+               .default = (round(index) %>% format(big.mark = ","))),
            label = str_squish(label)) %>%
     ggplot(aes(year, index, color = fips)) +
     geom_point(size = 1.2) +
