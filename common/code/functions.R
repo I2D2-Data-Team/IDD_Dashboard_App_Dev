@@ -398,8 +398,8 @@ plot_map_leaflet <- function(DATA, BASE_MAP, LOCATIONS,
                   color = "#666",
                   fillOpacity = 0.905,
                   bringToFront = FALSE)
-    ) %>%
-    addProviderTiles(providers$CartoDB.Positron)
+    ) #%>%
+    #addProviderTiles(providers$CartoDB.Positron)
   
   # set default text for NAs
   my_na_label <- "Not Available"
