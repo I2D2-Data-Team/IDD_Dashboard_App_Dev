@@ -6,7 +6,7 @@ shiny_sidebar_ui <- function() {
     selectizeInput(inputId = "GEOGRAPHY_SELECT", label = strong("Select Geography"),
                    choices = list(
                      "Iowa Counties"        = "IA-county",
-                     "ECI Areas"            = "ECI-area",
+                     "ECI Areas (FY25)"     = "ECI-area",
                      "HHS Regions"          = "HHS-region",
                      "Head Start Grantees"  = "HS-grantee",
                      "MIECHV"               = "MIECHV-area"
