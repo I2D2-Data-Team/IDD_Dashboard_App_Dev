@@ -9,14 +9,16 @@ library(tidyverse)
 
 # Set paths to CyBox
 cy_path <- file.path(Sys.getenv("USERPROFILE"), "Box")
-cy_idd_path <- "Iowa IDS/Projects/_IA Data Drive/Indicators/I2D2 Data/ACS INDICATORS/Indicators_GioUpload"
+cy_idd_path <- "Iowa IDS/Projects/_IA Data Drive/Indicators/Data/Indicator Data/2026"
 cy_my_path <- "My IDS/_DATA/IDD"
 
 
 # Read the birth risk data (that contains Medicaid or WIC)
 data.rsk <- 
-  read_csv(list.files(file.path(cy_path, cy_my_path), pattern = "^idd-birth-risk", full.names = TRUE),
-           col_types = cols(.default = "c", year = "i", index = "d", count = "d"))
+  list.files(file.path(cy_path, cy_my_path), pattern = "^idd-birth-risk", full.names = TRUE) %>%
+  sort(decreasing = TRUE) %>%
+  .[1] %>%
+  read_csv(., col_types = cols(.default = "c", year = "i", index = "d", count = "d"))
 
 
 
@@ -35,7 +37,7 @@ my_indicators_abbr <- tibble::tribble(
   "Tobacco Exposure",                   "Prenatal Tobacco Exposure",          "pte",
   "Low Maternal Education",             "Low Maternal Education at Birth",    "lme",
   "Medicaid or WIC Receipt at Birth",   "Medicaid or WIC Receipt at Birth",   "mow",
-  "Cummulative Birth Reisk",            "Cumulative Birth Risks",             "cum"
+  "Cumulative Birth Risks",             "Cumulative Birth Risks",             "cum"
 )
 
 # Function to extract data for Fig 1 and 2 and Fig 3
@@ -70,7 +72,7 @@ rename_geocode_and_geoname <- function(df, geo) {
           "data_eci" = df %>% select(geo, eci_number = code, eci_area_name = geoname, {my_com_cols}),
           "data_hhs" = df %>% select(geo, region_number = code, region = geoname, {my_com_cols}),
           "data_hs" = df %>% select(geo, hs_number = code, hs = geoname, {my_com_cols}),
-          "data_miechv_26" = df %>% select(geo, miechv_number = code, miechv = geoname, {my_com_cols}),
+          "data_miechv" = df %>% select(geo, miechv_number = code, miechv = geoname, {my_com_cols}),
           "No geography matched"
   )
 }
@@ -98,7 +100,7 @@ for (j in 1:nrow(my_indicators_abbr)) {
               "data_eci"       = paste0("rsk_", my_indicators_abbr$abbr[j], "_fig1_2_", "eci", ".csv") ,
               "data_hhs"       = paste0("rsk_", my_indicators_abbr$abbr[j], "_fig1_2_", "rg", ".csv"),
               "data_hs"        = paste0("rsk_", my_indicators_abbr$abbr[j], "_fig1_2_", "hs", ".csv"),
-              "data_miechv_26" = paste0("rsk_", my_indicators_abbr$abbr[j], "_fig1_2_", "mv", ".csv")
+              "data_miechv"    = paste0("rsk_", my_indicators_abbr$abbr[j], "_fig1_2_", "mv", ".csv")
       )
     # set directory name to save data in my CyBox
     dir_name <- 
@@ -107,14 +109,14 @@ for (j in 1:nrow(my_indicators_abbr)) {
               "data_eci"       = "ECI-area",
               "data_hhs"       = "HHS-region",
               "data_hs"        = "HS-grantee",
-              "data_miechv_26" = "MIECHV-area"
+              "data_miechv"    = "MIECHV-area"
       )
     # subset data by geographies and save in corresponding locations
     my.data.1 %>%
       rename_geocode_and_geoname(i) %>%
       filter(geo == i) %>%
       select(-geo) %T>%
-      write_csv(file.path(cy_path, cy_idd_path, "health and social indicators", file_name)) %>%
+      write_csv(file.path(cy_path, cy_idd_path, "Health", dir_name, file_name)) %>%
       write_csv(file.path(cy_path, cy_my_path, "Health", dir_name, file_name))
   }
   
@@ -141,7 +143,7 @@ for (j in 1:nrow(my_indicators_abbr)) {
               "data_eci"       = paste0("rsk_", my_indicators_abbr$abbr[j], "_fig3_4_", "eci", ".csv") ,
               "data_hhs"       = paste0("rsk_", my_indicators_abbr$abbr[j], "_fig3_4_", "rg", ".csv"),
               "data_hs"        = paste0("rsk_", my_indicators_abbr$abbr[j], "_fig3_4_", "hs", ".csv"),
-              "data_miechv_26" = paste0("rsk_", my_indicators_abbr$abbr[j], "_fig3_4_", "mv", ".csv")
+              "data_miechv"    = paste0("rsk_", my_indicators_abbr$abbr[j], "_fig3_4_", "mv", ".csv")
       )
     # set directory name to save data in my CyBox
     dir_name <- 
@@ -150,14 +152,14 @@ for (j in 1:nrow(my_indicators_abbr)) {
               "data_eci"       = "ECI-area",
               "data_hhs"       = "HHS-region",
               "data_hs"        = "HS-grantee",
-              "data_miechv_26" = "MIECHV-area"
+              "data_miechv"    = "MIECHV-area"
       )
     # subset data by geographies and save in corresponding locations
     my.data.3 %>%
       rename_geocode_and_geoname(i) %>%
       filter(geo == i) %>%
       select(-geo) %T>%
-      write_csv(file.path(cy_path, cy_idd_path, "health and social indicators", file_name)) %>%
+      write_csv(file.path(cy_path, cy_idd_path, "Health", dir_name, file_name)) %>%
       write_csv(file.path(cy_path, cy_my_path, "Health", dir_name, file_name))
   }
   
